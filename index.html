@@ -28,12 +28,22 @@
                 <li><a href="#about">Sobre</a></li>
                 <li><a href="#contact" class="btn-primary">Contato</a></li>
             </ul>
-            <div class="menu-toggle" id="mobile-menu">
+            <div class="menu-toggle" id="mobile-menu-btn">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
         </nav>
+        <!-- Mobile Navigation Panel -->
+        <div class="mobile-nav-panel" id="mobile-nav-panel">
+            <ul class="mobile-nav-links">
+                <li><a href="#home">Início</a></li>
+                <li><a href="#services">Serviços</a></li>
+                <li><a href="#portfolio">Portfólio</a></li>
+                <li><a href="#about">Sobre</a></li>
+                <li><a href="#contact" class="btn-primary">Contato</a></li>
+            </ul>
+        </div>
     </header>
 
     <main>
@@ -67,19 +77,19 @@
 
         <section id="services" class="services">
             <div class="container">
-                <h2 class="section-title">Nossos <span class="gradient-text">Serviços</span></h2>
+                <h2 class="section-title fade-up">Nossos <span class="gradient-text">Serviços</span></h2>
                 <div class="services-grid">
-                    <div class="service-card glass-card">
+                    <div class="service-card glass-card fade-up delay-1">
                         <div class="icon">✨</div>
                         <h3>UI/UX Design</h3>
                         <p>Interfaces intuitivas e esteticamente impecáveis focadas na experiência do usuário.</p>
                     </div>
-                    <div class="service-card glass-card">
+                    <div class="service-card glass-card fade-up delay-2">
                         <div class="icon">🚀</div>
                         <h3>Desenvolvimento</h3>
                         <p>Código limpo, escalável e otimizado para os motores de busca e performance.</p>
                     </div>
-                    <div class="service-card glass-card">
+                    <div class="service-card glass-card fade-up delay-3">
                         <div class="icon">📱</div>
                         <h3>Mobile First</h3>
                         <p>Experiências fluidas em qualquer dispositivo, do desktop ao smartphone.</p>
@@ -87,22 +97,78 @@
                 </div>
             </div>
         </section>
+
+        <section id="portfolio" class="portfolio">
+            <div class="container">
+                <h2 class="section-title fade-up">Projetos em <span class="gradient-text">Destaque</span></h2>
+                <div class="portfolio-grid">
+                    <div class="portfolio-card glass-card fade-up delay-1" data-project="1">
+                        <div class="portfolio-img-placeholder">E-commerce XYZ</div>
+                        <div class="portfolio-info">
+                            <h3>Plataforma de Vendas</h3>
+                            <button class="btn-secondary open-modal-btn">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="portfolio-card glass-card fade-up delay-2" data-project="2">
+                        <div class="portfolio-img-placeholder">App Financeiro</div>
+                        <div class="portfolio-info">
+                            <h3>Dashboard Interativo</h3>
+                            <button class="btn-secondary open-modal-btn">Ver Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal Structure -->
+        <div id="project-modal" class="modal">
+            <div class="modal-content glass-card">
+                <span class="close-modal">&times;</span>
+                <h2 id="modal-title" class="gradient-text">Título do Projeto</h2>
+                <p id="modal-desc">Descrição completa do projeto e tecnologias utilizadas.</p>
+                <div class="modal-tech-tags">
+                    <span class="tag">HTML5</span>
+                    <span class="tag">CSS3</span>
+                    <span class="tag">JavaScript</span>
+                </div>
+                <a href="#" class="btn-primary" id="modal-link" style="margin-top: 1.5rem;">Visitar Projeto</a>
+            </div>
+        </div>
     </main>
 
     <footer id="contact">
         <div class="container">
+            <h2 class="section-title fade-up">Entre em <span class="gradient-text">Contato</span></h2>
             <div class="footer-content">
-                <div class="footer-info">
+                <div class="footer-info fade-up delay-1">
                     <h2 class="gradient-text">NEXUS</h2>
-                    <p>Elevando o padrão da web, um pixel de cada vez.</p>
+                    <p>Elevando o padrão da web, um pixel de cada vez. Vamos construir algo incrível juntos?</p>
+                    <div class="footer-links" style="margin-top: 2rem;">
+                        <h3>Redes Sociais</h3>
+                        <ul style="display: flex; gap: 1rem; list-style: none; margin-top: 1rem;">
+                            <li><a href="#" class="social-link">LinkedIn</a></li>
+                            <li><a href="#" class="social-link">GitHub</a></li>
+                            <li><a href="#" class="social-link">Instagram</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="footer-links">
-                    <h3>Redes</h3>
-                    <ul>
-                        <li><a href="#">LinkedIn</a></li>
-                        <li><a href="#">GitHub</a></li>
-                        <li><a href="#">Instagram</a></li>
-                    </ul>
+                <div class="footer-form fade-up delay-2">
+                    <form id="contact-form" class="glass-card">
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" required placeholder="Seu nome">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" required placeholder="seu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensagem</label>
+                            <textarea id="message" rows="4" required placeholder="Como podemos ajudar?"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer;">Enviar Mensagem</button>
+                    </form>
+                    <div id="form-feedback" style="display: none; margin-top: 1rem; color: #27c93f; text-align: center;">Mensagem enviada com sucesso! Entraremos em contato em breve.</div>
                 </div>
             </div>
             <div class="footer-bottom">
