@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentações | Nexus Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background: #f3f4f6; color: #333; font-family: 'Outfit', sans-serif; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* Topbar */
+        .topbar { background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; }
+        .topbar-left a { text-decoration: none; font-weight: bold; color: #6366f1; font-size: 1.2rem; }
+        .topbar-right button { background: #6366f1; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .topbar-right button:hover { background: #4f46e5; }
+        
+        .main-content { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Left Toolbar (Canva style) */
+        .toolbar-left { width: 80px; background: #1f2937; display: flex; flex-direction: column; align-items: center; padding-top: 1rem; gap: 1.5rem; z-index: 5; }
+        .tool-icon { color: #9ca3af; display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; cursor: pointer; transition: 0.2s; width: 100%; padding: 0.5rem 0; }
+        .tool-icon:hover, .tool-icon.active { color: white; background: rgba(255,255,255,0.1); }
+        .tool-icon span { font-size: 1.5rem; margin-bottom: 0.3rem; }
+        
+        /* Secondary Panel */
+        .panel-secondary { width: 250px; background: white; border-right: 1px solid #e5e7eb; padding: 1.5rem; display: none; flex-direction: column; gap: 1rem; overflow-y: auto; z-index: 4; }
+        .panel-secondary.open { display: flex; }
+        .panel-secondary h3 { margin: 0; font-size: 1rem; color: #374151; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+        
+        /* Background Colors */
+        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .color-swatch { width: 100%; aspect-ratio: 1; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .color-swatch:hover { transform: scale(1.1); }
+        
+        /* Buttons inside panels */
+        .panel-btn { width: 100%; padding: 0.8rem; background: #f3f4f6; border: 1px solid #e5e7eb; cursor: pointer; border-radius: 4px; margin-bottom: 0.5rem; font-family: inherit; font-size: 0.9rem; text-align: center; transition: 0.2s; }
+        .panel-btn:hover { background: #e5e7eb; }
+        .panel-btn.active-anim { background: #6366f1; color: white; border-color: #6366f1; }
+        
+        /* Canvas Area */
+        .canvas-area { flex: 1; display: flex; flex-direction: column; background: #e5e7eb; position: relative; }
+        .canvas-container { flex: 1; display: flex; justify-content: center; align-items: center; overflow: auto; padding: 2rem; }
+        
+        .slide-canvas {
+            width: 800px; height: 450px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative; overflow: hidden; transition: background 0.3s;
+        }
+        
+        /* Draggable/Editable Text Elements */
+        .canvas-element {
+            position: absolute; cursor: move; padding: 0.5rem; border: 2px dashed transparent;
+            font-size: 2rem; font-weight: bold; text-align: center; color: #1f2937;
+            min-width: 100px; max-width: 90%; /* Previne expansão infinita */
+            word-wrap: break-word; white-space: pre-wrap; /* Comportamento de Word */
+            line-height: 1.2;
+        }
+        .canvas-element:focus, .canvas-element:hover { border: 2px dashed #6366f1; outline: none; }
+        
+        /* Bottom Timeline (Slides) */
+        .timeline { background: white; border-top: 1px solid #e5e7eb; padding: 1rem; display: flex; gap: 1rem; overflow-x: auto; align-items: center; z-index: 10; }
+        .slide-thumb { width: 120px; height: 67px; background: white; border: 2px solid #e5e7eb; border-radius: 4px; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #9ca3af; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .slide-thumb.active { border-color: #6366f1; }
+        .slide-thumb-number { position: absolute; bottom: 2px; left: 4px; font-size: 0.7rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0 4px; border-radius: 2px; }
+        .add-slide-btn { width: 40px; height: 67px; background: #f3f4f6; border: 2px dashed #cbd5e1; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #64748b; flex-shrink: 0; transition: 0.2s; }
+        .add-slide-btn:hover { background: #e2e8f0; border-color: #94a3b8; }
+        
+        /* Presentation Mode Overlay */
+        #presentation-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 9999; justify-content: center; align-items: center; }
+        #presentation-canvas { width: 1280px; height: 720px; background: white; position: relative; overflow: hidden; transform-origin: center center; }
+        .close-presentation { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; z-index: 10000; }
+        .close-presentation:hover { background: rgba(255,255,255,0.4); }
+
+        /* Animations */
+        @keyframes fadeAnim { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUpAnim { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomInAnim { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        
+        .anim-fade { animation: fadeAnim 1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .anim-slide-up { animation: slideUpAnim 1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .anim-zoom-in { animation: zoomInAnim 1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="workspace.html">⬅ NEXUS Hub</a>
+            <span style="margin-left: 1rem; color: #6b7280; font-size: 0.9rem;">Apresentação sem título</span>
+        </div>
+        <div class="topbar-right">
+            <button onclick="startPresentation()">Apresentar ▶</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Left Toolbar -->
+        <div class="toolbar-left">
+            <div class="tool-icon open" onclick="togglePanel('text', this)">
+                <span>T</span> Textos
+            </div>
+            <div class="tool-icon" onclick="togglePanel('bg', this)">
+                <span>🎨</span> Fundo
+            </div>
+            <div class="tool-icon" onclick="togglePanel('anim', this)">
+                <span>✨</span> Animar
+            </div>
+        </div>
+        
+        <!-- Panels -->
+        <div class="panel-secondary open" id="text-panel">
+            <h3>Adicionar Texto</h3>
+            <button class="panel-btn" style="font-size: 1.5rem; font-weight: bold; padding: 1rem;" onclick="addText('Título', '3rem', 'bold')">Adicionar Título</button>
+            <button class="panel-btn" style="font-size: 1.2rem; padding: 0.8rem;" onclick="addText('Subtítulo', '2rem', 'normal')">Adicionar Subtítulo</button>
+            <button class="panel-btn" onclick="addText('Texto longo que deve quebrar a linha automaticamente como no Word. Digite aqui seu conteúdo descritivo.', '1.2rem', 'normal')">Adicionar corpo de texto</button>
+            <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 1rem;">O texto agora se ajusta automaticamente à largura sem estourar o slide.</p>
+        </div>
+
+        <div class="panel-secondary" id="bg-panel">
+            <h3>Cores de Fundo</h3>
+            <div class="color-grid">
+                <div class="color-swatch" style="background: #ffffff;" onclick="changeBg('#ffffff')"></div>
+                <div class="color-swatch" style="background: #fca5a5;" onclick="changeBg('#fca5a5')"></div>
+                <div class="color-swatch" style="background: #fcd34d;" onclick="changeBg('#fcd34d')"></div>
+                <div class="color-swatch" style="background: #86efac;" onclick="changeBg('#86efac')"></div>
+                <div class="color-swatch" style="background: #93c5fd;" onclick="changeBg('#93c5fd')"></div>
+                <div class="color-swatch" style="background: #c4b5fd;" onclick="changeBg('#c4b5fd')"></div>
+                <div class="color-swatch" style="background: #1f2937;" onclick="changeBg('#1f2937')"></div>
+                <div class="color-swatch" style="background: linear-gradient(135deg, #6366f1, #ec4899);" onclick="changeBg('linear-gradient(135deg, #6366f1, #ec4899)')"></div>
+            </div>
+        </div>
+
+        <div class="panel-secondary" id="anim-panel">
+            <h3>Animação da Página</h3>
+            <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0; margin-bottom: 1rem;">A animação será exibida quando o slide abrir na Apresentação.</p>
+            <button class="panel-btn active-anim" id="btn-anim-none" onclick="setAnimation('none')">Nenhuma</button>
+            <button class="panel-btn" id="btn-anim-fade" onclick="setAnimation('anim-fade')">Surgir (Fade)</button>
+            <button class="panel-btn" id="btn-anim-slide-up" onclick="setAnimation('anim-slide-up')">Subir</button>
+            <button class="panel-btn" id="btn-anim-zoom-in" onclick="setAnimation('anim-zoom-in')">Zoom In</button>
+            
+            <button class="panel-btn" style="background: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; margin-top: 1rem;" onclick="testAnimation()">▶ Testar Animação</button>
+        </div>
+        
+        <!-- Canvas Area with Timeline -->
+        <div class="canvas-area">
+            <div class="canvas-container">
+                <div class="slide-canvas" id="canvas">
+                    <!-- Elements will be injected here -->
+                </div>
+            </div>
+            
+            <!-- Timeline (Slides) -->
+            <div class="timeline" id="timeline">
+                <!-- Thumbs injected by JS -->
+                <button class="add-slide-btn" onclick="addNewSlide()" title="Adicionar Novo Slide">+</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presentation Overlay -->
+    <div id="presentation-overlay">
+        <button class="close-presentation" onclick="stopPresentation()">✕ Sair da Apresentação</button>
+        <div id="presentation-canvas"></div>
+    </div>
+
+    <script>
+        // State Management
+        let slides = [
+            { id: 1, bg: '#ffffff', anim: 'none', html: '<div class="canvas-element" contenteditable="true" style="top: 40%; left: 30%; font-size: 3rem; font-weight: bold; color: rgb(31, 41, 55);">Meu Slide 1</div>' }
+        ];
+        let currentSlideIndex = 0;
+
+        const canvas = document.getElementById('canvas');
+        const timeline = document.getElementById('timeline');
+        const addSlideBtn = document.querySelector('.add-slide-btn');
+
+        // Initialization
+        function renderTimeline() {
+            // Remove existing thumbs
+            document.querySelectorAll('.slide-thumb').forEach(el => el.remove());
+            
+            slides.forEach((slide, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `slide-thumb ${index === currentSlideIndex ? 'active' : ''}`;
+                thumb.style.background = slide.bg;
+                // Add tiny preview text representation (optional, keeping it simple)
+                thumb.innerHTML = `<span class="slide-thumb-number">${index + 1}</span>`;
+                thumb.onclick = () => loadSlide(index);
+                timeline.insertBefore(thumb, addSlideBtn);
+            });
+        }
+
+        function loadSlide(index) {
+            // Save current slide state before switching
+            saveCurrentSlide();
+            
+            currentSlideIndex = index;
+            const slide = slides[currentSlideIndex];
+            
+            // Load new state
+            canvas.style.background = slide.bg;
+            canvas.innerHTML = slide.html;
+            
+            // Update animation buttons
+            document.querySelectorAll('#anim-panel .panel-btn').forEach(b => b.classList.remove('active-anim'));
+            let animId = slide.anim === 'none' ? 'none' : slide.anim.replace('anim-', '');
+            const btn = document.getElementById(`btn-anim-${animId}`);
+            if(btn) btn.classList.add('active-anim');
+
+            renderTimeline();
+            reattachDragEvents();
+        }
+
+        function saveCurrentSlide() {
+            if(slides[currentSlideIndex]) {
+                slides[currentSlideIndex].bg = canvas.style.background;
+                slides[currentSlideIndex].html = canvas.innerHTML;
+            }
+        }
+
+        function addNewSlide() {
+            saveCurrentSlide();
+            const newSlide = {
+                id: Date.now(),
+                bg: '#ffffff',
+                anim: 'none',
+                html: '<div class="canvas-element" contenteditable="true" style="top: 40%; left: 20%; font-size: 3rem; font-weight: bold; color: rgb(31, 41, 55);">Novo Slide</div>'
+            };
+            slides.push(newSlide);
+            loadSlide(slides.length - 1);
+        }
+
+        // Left Panel logic
+        function togglePanel(type, iconEl) {
+            document.querySelectorAll('.panel-secondary').forEach(p => p.classList.remove('open'));
+            document.getElementById(type + '-panel').classList.add('open');
+            
+            document.querySelectorAll('.tool-icon').forEach(i => i.classList.remove('active'));
+            iconEl.classList.add('active');
+        }
+
+        // Background Logic
+        function changeBg(color) {
+            canvas.style.background = color;
+            slides[currentSlideIndex].bg = color;
+            
+            // Adjust text color
+            if (color === '#1f2937' || color.includes('linear-gradient')) {
+                document.querySelectorAll('.canvas-element').forEach(el => el.style.color = '#ffffff');
+            } else {
+                document.querySelectorAll('.canvas-element').forEach(el => el.style.color = '#1f2937');
+            }
+            saveCurrentSlide();
+            renderTimeline();
+        }
+
+        // Text Logic
+        function addText(placeholder, size, weight) {
+            const el = document.createElement('div');
+            el.className = 'canvas-element';
+            el.contentEditable = true;
+            el.style.fontSize = size;
+            el.style.fontWeight = weight;
+            el.style.top = '40%';
+            el.style.left = '30%';
+            el.textContent = placeholder;
+            
+            if (canvas.style.background === 'rgb(31, 41, 55)' || canvas.style.background.includes('linear-gradient')) {
+                el.style.color = '#ffffff';
+            } else {
+                el.style.color = '#1f2937';
+            }
+
+            canvas.appendChild(el);
+            saveCurrentSlide();
+        }
+
+        // Animation Logic
+        function setAnimation(animClass) {
+            slides[currentSlideIndex].anim = animClass;
+            document.querySelectorAll('#anim-panel .panel-btn').forEach(b => b.classList.remove('active-anim'));
+            event.target.classList.add('active-anim');
+            testAnimation();
+        }
+
+        function testAnimation() {
+            const anim = slides[currentSlideIndex].anim;
+            if(anim !== 'none') {
+                // Remove class to reset animation, trigger reflow, add back
+                canvas.className = 'slide-canvas';
+                void canvas.offsetWidth; // trigger reflow
+                canvas.className = `slide-canvas ${anim}`;
+            } else {
+                canvas.className = 'slide-canvas';
+            }
+        }
+
+        // Presentation Logic
+        let presIndex = 0;
+        function startPresentation() {
+            saveCurrentSlide();
+            presIndex = currentSlideIndex;
+            const overlay = document.getElementById('presentation-overlay');
+            overlay.style.display = 'flex';
+            
+            // Scale canvas to fit screen
+            const presCanvas = document.getElementById('presentation-canvas');
+            const scale = Math.min(window.innerWidth / 800, window.innerHeight / 450) * 0.9;
+            presCanvas.style.transform = `scale(${scale})`;
+            
+            showPresentationSlide();
+
+            // Setup keyboard nav
+            document.addEventListener('keydown', presKeyHandler);
+        }
+
+        function stopPresentation() {
+            document.getElementById('presentation-overlay').style.display = 'none';
+            document.removeEventListener('keydown', presKeyHandler);
+            
+            // Re-apply animation on standard canvas just to clear states
+            canvas.className = 'slide-canvas';
+        }
+
+        function showPresentationSlide() {
+            const slide = slides[presIndex];
+            const presCanvas = document.getElementById('presentation-canvas');
+            
+            presCanvas.style.background = slide.bg;
+            presCanvas.innerHTML = slide.html;
+            
+            // Disable editing in presentation
+            presCanvas.querySelectorAll('.canvas-element').forEach(el => {
+                el.contentEditable = false;
+                el.style.border = 'none';
+            });
+
+            // Apply animation
+            presCanvas.className = slide.anim !== 'none' ? slide.anim : '';
+        }
+
+        function presKeyHandler(e) {
+            if(e.key === 'ArrowRight' || e.key === 'Space') {
+                if(presIndex < slides.length - 1) { presIndex++; showPresentationSlide(); }
+            } else if (e.key === 'ArrowLeft') {
+                if(presIndex > 0) { presIndex--; showPresentationSlide(); }
+            } else if (e.key === 'Escape') {
+                stopPresentation();
+            }
+        }
+
+        // Basic Drag and Drop
+        let isDragging = false;
+        let currentEl = null;
+        let offsetX, offsetY;
+
+        function reattachDragEvents() {
+            // Document level listeners already exist, we just need to ensure elements are draggable
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('canvas-element') && document.activeElement !== e.target && e.target.closest('#canvas')) {
+                isDragging = true;
+                currentEl = e.target;
+                offsetX = e.clientX - currentEl.getBoundingClientRect().left;
+                offsetY = e.clientY - currentEl.getBoundingClientRect().top;
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && currentEl) {
+                const canvasRect = canvas.getBoundingClientRect();
+                let newX = e.clientX - canvasRect.left - offsetX;
+                let newY = e.clientY - canvasRect.top - offsetY;
+                // Boundaries (optional)
+                currentEl.style.left = newX + 'px';
+                currentEl.style.top = newY + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if(isDragging) {
+                isDragging = false;
+                currentEl = null;
+                saveCurrentSlide();
+            }
+        });
+
+        // Initialize
+        loadSlide(0);
+
+    </script>
+</body>
+</html>

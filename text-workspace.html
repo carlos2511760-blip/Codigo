@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos | Nexus Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: #e0e4e8; color: #000; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+        
+        /* Word-style Ribbon Toolbar */
+        .ribbon {
+            background: #f3f2f1; border-bottom: 1px solid #d2d0ce; padding: 0.5rem 1rem;
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .ribbon-tabs { display: flex; gap: 1rem; font-size: 0.9rem; color: #605e5c; padding-bottom: 0.3rem; border-bottom: 1px solid #e1dfdd; }
+        .ribbon-tabs span { cursor: pointer; padding: 0.2rem 0.5rem; }
+        .ribbon-tabs span.active { border-bottom: 2px solid #0078d4; color: #0078d4; font-weight: 600; }
+        
+        .toolbar-tools { display: flex; gap: 1rem; align-items: center; }
+        .tool-group { display: flex; gap: 0.2rem; align-items: center; border-right: 1px solid #c8c6c4; padding-right: 1rem; }
+        .tool-btn {
+            background: transparent; border: 1px solid transparent; padding: 0.3rem 0.6rem;
+            cursor: pointer; border-radius: 2px; font-weight: 600; color: #323130; font-size: 1rem;
+        }
+        .tool-btn:hover { background: #c8c6c4; }
+        
+        .main-layout { display: flex; height: calc(100vh - 100px); }
+        
+        /* Sidebar */
+        .sidebar { width: 220px; background: #faf9f8; border-right: 1px solid #e1dfdd; padding: 1rem; overflow-y: auto; }
+        .doc-item { padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; color: #323130; font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .doc-item:hover, .doc-item.active { background: #edebe9; font-weight: 600; }
+        
+        /* Editor Area */
+        .editor-container { flex: 1; padding: 2rem; overflow-y: auto; display: flex; justify-content: center; background: #e0e4e8; }
+        
+        .document-page {
+            background: white; width: 21cm; min-height: 29.7cm; /* A4 size roughly */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 2.5cm; 
+            outline: none; word-wrap: break-word; overflow-wrap: break-word;
+            white-space: pre-wrap; font-family: 'Times New Roman', serif; font-size: 12pt;
+            line-height: 1.5; color: #000;
+        }
+        
+        /* Top Navigation (Nexus) */
+        .top-nav { background: #0078d4; padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .top-nav a { color: white; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div>
+            <a href="workspace.html">⬅ NEXUS Hub</a>
+            <span style="margin-left: 1rem; font-size: 0.9rem;">Documento1.docx</span>
+        </div>
+        <button style="background: white; color: #0078d4; border: none; padding: 0.3rem 1rem; border-radius: 2px; font-weight: bold; cursor: pointer;">Compartilhar</button>
+    </div>
+
+    <div class="ribbon">
+        <div class="ribbon-tabs">
+            <span class="active">Página Inicial</span>
+            <span>Inserir</span>
+            <span>Layout</span>
+        </div>
+        <div class="toolbar-tools">
+            <div class="tool-group">
+                <button class="tool-btn" onclick="document.execCommand('bold', false, null)" title="Negrito"><b>B</b></button>
+                <button class="tool-btn" onclick="document.execCommand('italic', false, null)" title="Itálico"><i>I</i></button>
+                <button class="tool-btn" onclick="document.execCommand('underline', false, null)" title="Sublinhado"><u>U</u></button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" onclick="document.execCommand('justifyLeft', false, null)">⬅</button>
+                <button class="tool-btn" onclick="document.execCommand('justifyCenter', false, null)">⬆</button>
+                <button class="tool-btn" onclick="document.execCommand('justifyRight', false, null)">➡</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" onclick="document.execCommand('insertUnorderedList', false, null)">• Lista</button>
+                <button class="tool-btn" onclick="document.execCommand('insertOrderedList', false, null)">1. Lista</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div style="font-size: 0.8rem; font-weight: bold; color: #605e5c; margin-bottom: 0.5rem; text-transform: uppercase;">Navegação</div>
+            <div class="doc-item active">Documento1.docx</div>
+            <div class="doc-item">Relatório Final.docx</div>
+            <button style="width: 100%; padding: 0.5rem; margin-top: 1rem; background: #0078d4; color: white; border: none; border-radius: 2px; cursor: pointer;">+ Novo Documento</button>
+        </div>
+        
+        <div class="editor-container">
+            <div class="document-page" contenteditable="true" spellcheck="false">
+                <div style="font-size: 24pt; font-weight: bold; margin-bottom: 1rem;">Título do Documento</div>
+                <div>Comece a digitar seu texto aqui. Este editor foi ajustado para evitar que o texto ultrapasse a página, mantendo as proporções de um documento real (estilo Word).</div>
+                <div><br></div>
+                <div>Selecione o texto e use a barra de ferramentas superior para aplicar <b>negrito</b>, <i>itálico</i> ou <u>sublinhado</u> de verdade.</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
