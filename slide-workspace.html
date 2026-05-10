@@ -370,11 +370,13 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
       <div class="shape-item" onclick="addEmoji('🌟')">🌟</div>
       <div class="shape-item" onclick="addEmoji('⚡')">⚡</div>
     </div>
-    <h4 style="margin-top:.5rem">Imagem de URL</h4>
-    <div style="display:flex;gap:.4rem">
-      <input id="imgUrl" placeholder="Cole URL da imagem" style="flex:1;background:#1e1e2e;border:1px solid #2d2d4a;color:#fff;padding:.4rem;border-radius:4px;font-size:.8rem">
-      <button class="btn" style="padding:.4rem .7rem" onclick="addImageFromURL()">OK</button>
-    </div>
+    <h4 style="margin-top:.5rem">Imagem</h4>
+    <!-- Upload de arquivo -->
+    <label id="imgUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#1e1e2e;border:2px dashed #2d2d4a;border-radius:8px;padding:1rem;cursor:pointer;color:#64748b;font-size:.8rem;text-align:center;transition:.2s" onmouseenter="this.style.borderColor='#6366f1'" onmouseleave="this.style.borderColor='#2d2d4a'">
+      <span style="font-size:1.8rem">🖼️</span>
+      <span>Clique para enviar imagem<br><span style="font-size:.7rem;color:#4b5563">ou Cole (Ctrl+V) no slide</span></span>
+      <input type="file" accept="image/*" style="display:none" onchange="addImageFromFile(this)">
+    </label>
   </div>
 
   <div class="panel" id="panel-bg">

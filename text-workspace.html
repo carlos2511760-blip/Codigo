@@ -282,6 +282,44 @@
             saveDocState();
             return res;
         }
+
+        // Ctrl+V / Colar imagem da área de transferência no documento
+        editor.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    e.preventDefault();
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = document.createElement('img');
+                        img.src = ev.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.display = 'block';
+                        img.style.margin = '0.5rem 0';
+                        img.style.borderRadius = '4px';
+                        // Insere na posição do cursor
+                        const sel = window.getSelection();
+                        if (sel.rangeCount > 0) {
+                            const range = sel.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode(img);
+                            // Move o cursor para depois da imagem
+                            range.setStartAfter(img);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else {
+                            editor.appendChild(img);
+                        }
+                        saveDocState();
+                    };
+                    reader.readAsDataURL(blob);
+                    break;
+                }
+            }
+        });
     </script>
 </body>
 </html>

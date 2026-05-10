@@ -193,21 +193,48 @@ function addEmoji(emoji){
   commitHistory();
 }
 
-function addImageFromURL(){
-  const url = document.getElementById('imgUrl').value.trim();
-  if(!url) return;
+// Upload de arquivo local (FileReader → base64 data URL)
+function addImageFromFile(input) {
+  const file = input.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = (e) => addImageFromDataUrl(e.target.result);
+  reader.readAsDataURL(file);
+  input.value = ''; // permite reselecionar o mesmo arquivo
+}
+
+// Insere imagem a partir de data URL (base64) no slide
+function addImageFromDataUrl(dataUrl) {
   const el = document.createElement('div');
   el.className = 'el';
   el.dataset.anim = 'none';
   el.style.cssText = `left:100px;top:80px;width:300px;height:200px;z-index:${++zTop}`;
-  el.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">${resizeHandlesHTML()}`;
+  el.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">${resizeHandlesHTML()}`;
   slide.appendChild(el);
   attachElEvents(el);
   saveSlide();
   selectEl(el);
-  document.getElementById('imgUrl').value = '';
   commitHistory();
 }
+
+// Ctrl+V / Colar imagem da área de transferência direto no slide
+document.addEventListener('paste', (e) => {
+  // Se estiver editando texto dentro de um el-inner, não intercepta
+  if (document.activeElement && document.activeElement.classList.contains('el-inner')) return;
+  // Se estiver em modo apresentação, ignora
+  if (document.getElementById('pres').classList.contains('show')) return;
+  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const blob = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (ev) => addImageFromDataUrl(ev.target.result);
+      reader.readAsDataURL(blob);
+      break;
+    }
+  }
+});
 
 // ============================================================
 // ELEMENT SELECTION & CONTEXT BAR
