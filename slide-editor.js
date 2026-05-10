@@ -288,15 +288,22 @@ async function startWebcamStream(videoElement) {
     try {
       globalWebcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
     } catch(err) {
-      console.error(err);
+      console.error("Camera Error:", err);
       videoElement.style.background = '#333';
       return;
     }
   }
+  
   videoElement.muted = true;
   videoElement.playsInline = true;
+  videoElement.autoplay = true;
   videoElement.srcObject = globalWebcamStream;
-  videoElement.play().catch(e => console.log('Autoplay block:', e));
+  
+  videoElement.onloadedmetadata = () => {
+    videoElement.play().then(() => {
+        console.log("Camera playing successfully");
+    }).catch(e => console.log('Autoplay block:', e));
+  };
 }
 
 async function addWebcam() {
@@ -306,11 +313,9 @@ async function addWebcam() {
   el.style.cssText = `left:100px;top:100px;width:320px;height:240px;z-index:${++zTop};background:#000;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.5)`;
   
   const video = document.createElement('video');
-  video.autoplay = true;
-  video.muted = true;
-  video.playsInline = true;
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
+  video.setAttribute('autoplay', 'true');
+  video.setAttribute('muted', 'true');
+  video.setAttribute('playsinline', 'true');
   video.style.cssText = 'width:100%;height:100%;object-fit:cover;pointer-events:none';
   
   el.appendChild(video);
