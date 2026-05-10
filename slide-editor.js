@@ -12,6 +12,11 @@ let isDragging = false, isResizing = false;
 let dragEl = null, resizeEl = null, resizeHandle = null;
 let startX, startY, startW, startH, startL, startT;
 
+// --- HISTORY STATE ---
+let historyStack = [];
+let historyIdx = -1;
+let isRestoring = false;
+
 // --- DOM REFS ---
 const slide    = document.getElementById('slide');
 const ctxBar   = document.getElementById('ctxBar');
@@ -32,6 +37,53 @@ function saveSlide(){
   slides[curIdx].html = slide.innerHTML;
 }
 
+function commitHistory() {
+  if (isRestoring) return;
+  saveSlide();
+  const state = {
+    slides: slides.map(s => ({ bg: s.bg, html: s.html, anim: s.anim })),
+    curIdx: curIdx
+  };
+  if (historyIdx < historyStack.length - 1) {
+    historyStack = historyStack.slice(0, historyIdx + 1);
+  }
+  historyStack.push(state);
+  historyIdx++;
+}
+
+function undo() {
+  if (historyIdx > 0) {
+    historyIdx--;
+    restoreHistory(historyStack[historyIdx]);
+  }
+}
+
+function redo() {
+  if (historyIdx < historyStack.length - 1) {
+    historyIdx++;
+    restoreHistory(historyStack[historyIdx]);
+  }
+}
+
+function restoreHistory(state) {
+  isRestoring = true;
+  slides.length = 0;
+  state.slides.forEach(s => slides.push({ bg: s.bg, html: s.html, anim: s.anim }));
+  renderSlide(state.curIdx);
+  isRestoring = false;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('pres').classList.contains('show')) return;
+  if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    undo();
+  } else if (e.ctrlKey && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+    e.preventDefault();
+    redo();
+  }
+});
+
 function renderSlide(idx){
   deselect();
   curIdx = idx;
@@ -50,6 +102,7 @@ function addSlide(){
     `<div class="el" style="left:40%;top:38%;width:300px;height:70px;z-index:1" data-anim="none"><div class="el-inner" contenteditable="true" style="font-size:36px;font-weight:700;color:#1f2937;font-family:Outfit">Slide ${slides.length+1}</div>${resizeHandlesHTML()}</div>`
   ));
   renderSlide(slides.length - 1);
+  commitHistory();
 }
 
 function deleteSlide(idx){
@@ -57,6 +110,7 @@ function deleteSlide(idx){
   slides.splice(idx,1);
   if(curIdx >= slides.length) curIdx = slides.length - 1;
   renderSlide(curIdx);
+  commitHistory();
 }
 
 function renderTimeline(){
@@ -93,6 +147,7 @@ function addText(placeholder, size, weight){
   attachElEvents(el);
   saveSlide();
   selectEl(el);
+  commitHistory();
 }
 
 function addShape(type){
@@ -116,6 +171,7 @@ function addShape(type){
   attachElEvents(el);
   saveSlide();
   selectEl(el);
+  commitHistory();
 }
 
 function addEmoji(emoji){
@@ -128,6 +184,7 @@ function addEmoji(emoji){
   attachElEvents(el);
   saveSlide();
   selectEl(el);
+  commitHistory();
 }
 
 function addImageFromURL(){
@@ -143,6 +200,7 @@ function addImageFromURL(){
   saveSlide();
   selectEl(el);
   document.getElementById('imgUrl').value = '';
+  commitHistory();
 }
 
 // ============================================================
@@ -248,8 +306,15 @@ document.addEventListener('mousemove', e=>{
 });
 
 document.addEventListener('mouseup', ()=>{
-  if(isDragging||isResizing) saveSlide();
+  if(isDragging||isResizing) { saveSlide(); commitHistory(); }
   isDragging=false; isResizing=false; dragEl=null; resizeEl=null; resizeHandle=null;
+});
+
+document.addEventListener('focusout', (e) => {
+  if (e.target.classList.contains('el-inner')) {
+    saveSlide();
+    commitHistory();
+  }
 });
 
 // ============================================================
@@ -262,6 +327,7 @@ function applyStyle(prop, val){
   if(inner) inner.style[prop] = val;
   else selEl.style[prop] = val;
   saveSlide();
+  commitHistory();
 }
 
 function loadGoogleFont(fontFamily) {
@@ -288,6 +354,7 @@ function applyColorToSelection(color){
     applyStyle('color', color);
   }
   saveSlide();
+  commitHistory();
 }
 
 function execFmt(cmd){
@@ -295,6 +362,7 @@ function execFmt(cmd){
   if(inner) inner.focus();
   document.execCommand(cmd, false, null);
   saveSlide();
+  commitHistory();
 }
 
 function changeFontSize(delta){
@@ -303,8 +371,8 @@ function changeFontSize(delta){
   applyStyle('fontSize', sz+'px');
 }
 
-function bringFwd(){ if(selEl){ selEl.style.zIndex=++zTop; saveSlide(); } }
-function sendBck(){ if(selEl){ selEl.style.zIndex=Math.max(1,(parseInt(selEl.style.zIndex)||1)-1); saveSlide(); } }
+function bringFwd(){ if(selEl){ selEl.style.zIndex=++zTop; saveSlide(); commitHistory(); } }
+function sendBck(){ if(selEl){ selEl.style.zIndex=Math.max(1,(parseInt(selEl.style.zIndex)||1)-1); saveSlide(); commitHistory(); } }
 function dupEl(){
   if(!selEl) return;
   const clone = selEl.cloneNode(true);
@@ -316,8 +384,9 @@ function dupEl(){
   attachElEvents(clone);
   saveSlide();
   selectEl(clone);
+  commitHistory();
 }
-function delEl(){ if(selEl){ selEl.remove(); deselect(); saveSlide(); } }
+function delEl(){ if(selEl){ selEl.remove(); deselect(); saveSlide(); commitHistory(); } }
 
 // ============================================================
 // BACKGROUND
@@ -327,6 +396,7 @@ function setSlideBg(color){
   slide.style.backgroundColor = '';
   slides[curIdx].bg = color;
   renderTimeline();
+  commitHistory();
 }
 
 // ============================================================
@@ -362,6 +432,7 @@ function setAnim(anim, btn){
     slides[curIdx].anim = anim;
   }
   saveSlide();
+  commitHistory();
   testAnim();
 }
 
@@ -500,4 +571,5 @@ function rgb2hex(rgb){
     'none'
   ));
   renderSlide(0);
+  commitHistory();
 })();

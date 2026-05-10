@@ -16,15 +16,22 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
 .btn-ghost{background:transparent;color:#94a3b8;border:1px solid #2d2d4a;padding:.4rem 1rem;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.85rem;transition:.2s}
 .btn-ghost:hover{background:#2d2d4a;color:#fff}
 
-/* CONTEXT TOOLBAR */
-.ctx-bar{background:#13131f;border-bottom:1px solid #2d2d4a;padding:.4rem 1rem;display:none;align-items:center;gap:.6rem;flex-wrap:wrap;z-index:99}
+/* CONTEXT TOOLBAR (Estilo Imagem 1) */
+.ctx-bar{background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:.5rem 1rem;display:none;align-items:center;gap:.4rem;box-shadow:0 4px 12px rgba(0,0,0,.1);position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:99;flex-wrap:nowrap}
 .ctx-bar.show{display:flex}
-.ctx-bar select,.ctx-bar input[type=number]{background:#1e1e2e;color:#fff;border:1px solid #2d2d4a;border-radius:4px;padding:.25rem .4rem;font-family:inherit;font-size:.8rem}
-.ctx-bar input[type=color]{width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0}
-.ctx-sep{width:1px;height:20px;background:#2d2d4a}
-.ctx-btn{background:transparent;border:1px solid #2d2d4a;color:#94a3b8;padding:.25rem .5rem;border-radius:4px;cursor:pointer;font-size:.8rem;font-family:inherit}
-.ctx-btn:hover{background:#2d2d4a;color:#fff}
-.ctx-btn.on{background:#6366f1;color:#fff;border-color:#6366f1}
+.ctx-bar select{background:#fff;color:#333;border:1px solid #d1d5db;border-radius:4px;padding:.3rem .5rem;font-family:inherit;font-size:.9rem;outline:none}
+.ctx-bar .size-ctrl {display:flex;align-items:center;border:1px solid #d1d5db;border-radius:4px;overflow:hidden;background:#fff;}
+.ctx-bar .size-ctrl button {background:transparent;border:none;padding:0.3rem 0.6rem;cursor:pointer;color:#333;}
+.ctx-bar .size-ctrl button:hover {background:#f3f4f6;}
+.ctx-bar input[type=number]{background:#fff;color:#333;border:none;border-left:1px solid #d1d5db;border-right:1px solid #d1d5db;padding:.3rem 0;font-family:inherit;font-size:.9rem;width:45px;text-align:center;outline:none;border-radius:0}
+.ctx-bar input[type=color]{width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;padding:0}
+.ctx-sep{width:1px;height:24px;background:#e5e7eb;margin:0 .2rem}
+.ctx-btn{background:transparent;border:none;color:#374151;padding:.4rem;border-radius:4px;cursor:pointer;font-size:1.1rem;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:.2s}
+.ctx-btn:hover{background:#f3f4f6;color:#000}
+.ctx-txt-btn{font-size:.9rem;font-weight:500;padding:.4rem .6rem;}
+.ctx-txt-btn:hover{background:#f3f4f6;color:#000}
+.color-picker-wrap {position:relative;display:flex;flex-direction:column;align-items:center;}
+.color-picker-wrap::after {content:'';width:100%;height:3px;background:linear-gradient(90deg,red,orange,yellow,green,blue,indigo,violet);position:absolute;bottom:0;}
 
 /* MAIN BODY */
 .editor-body{display:flex;flex:1;overflow:hidden}
@@ -150,7 +157,7 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
 
 <!-- CONTEXT TOOLBAR -->
 <div class="ctx-bar" id="ctxBar">
-  <select id="ctxFont" onchange="applyStyle('fontFamily',this.value)" style="width: 140px;">
+  <select id="ctxFont" onchange="applyStyle('fontFamily',this.value)" style="width: 140px; border:1px solid #d1d5db;">
     <optgroup label="Sans Serif (Modernas e Sem Serifa)">
         <option value="Arial">Arial</option>
         <option value="Arimo">Arimo</option>
@@ -278,25 +285,47 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
         <option value="Yellowtail">Yellowtail</option>
     </optgroup>
   </select>
-  <button class="ctx-btn" onclick="changeFontSize(-2)">A-</button>
-  <input type="number" id="ctxSize" value="24" min="8" max="200" style="width:55px" onchange="applyStyle('fontSize',this.value+'px')">
-  <button class="ctx-btn" onclick="changeFontSize(2)">A+</button>
+
+  <div class="size-ctrl">
+    <button onclick="changeFontSize(-2)">−</button>
+    <input type="number" id="ctxSize" value="24" min="8" max="200" onchange="applyStyle('fontSize',this.value+'px')">
+    <button onclick="changeFontSize(2)">+</button>
+  </div>
+
+  <div class="color-picker-wrap" title="Cor do texto">
+    <span style="font-weight:bold;font-size:1.1rem;position:absolute;pointer-events:none;">A</span>
+    <input type="color" id="ctxColor" value="#1f2937" onchange="applyColorToSelection(this.value)" style="opacity:0;width:24px;height:24px;cursor:pointer;">
+  </div>
+
+  <button class="ctx-btn" id="btnB" onclick="execFmt('bold')" style="font-weight:bold;">B</button>
+  <button class="ctx-btn" id="btnI" onclick="execFmt('italic')" style="font-style:italic;font-family:serif;">I</button>
+  <button class="ctx-btn" id="btnU" onclick="execFmt('underline')" style="text-decoration:underline;">U</button>
+  <button class="ctx-btn" onclick="execFmt('createLink')" title="Link">🔗</button>
+  <button class="ctx-btn" onclick="applyStyle('textTransform','uppercase')" title="Maiúsculas">aA</button>
+
   <div class="ctx-sep"></div>
-  <label title="Cor do texto/forma"><input type="color" id="ctxColor" value="#1f2937" onchange="applyColorToSelection(this.value)"></label>
-  <label title="Cor de fundo da caixa"><input type="color" id="ctxBgColor" value="#ffffff" onchange="applyStyle('backgroundColor',this.value)"></label>
-  <div class="ctx-sep"></div>
-  <button class="ctx-btn" id="btnB" onclick="execFmt('bold')"><b>B</b></button>
-  <button class="ctx-btn" id="btnI" onclick="execFmt('italic')"><i>I</i></button>
-  <button class="ctx-btn" id="btnU" onclick="execFmt('underline')"><u>U</u></button>
-  <div class="ctx-sep"></div>
+
   <button class="ctx-btn" onclick="execFmt('justifyLeft')" title="Esquerda">⫷</button>
-  <button class="ctx-btn" onclick="execFmt('justifyCenter')" title="Centro">≡</button>
-  <button class="ctx-btn" onclick="execFmt('justifyRight')" title="Direita">⫸</button>
+  <button class="ctx-btn" onclick="execFmt('insertUnorderedList')" title="Lista">⋮≡</button>
+  <button class="ctx-btn" onclick="applyStyle('lineHeight','1.5')" title="Espaçamento">↕</button>
+
   <div class="ctx-sep"></div>
-  <button class="ctx-btn" onclick="bringFwd()" title="Para frente">⬆</button>
-  <button class="ctx-btn" onclick="sendBck()" title="Para trás">⬇</button>
-  <button class="ctx-btn" onclick="dupEl()" title="Duplicar">⧉</button>
-  <button class="ctx-btn" style="color:#f87171;margin-left:auto" onclick="delEl()">🗑</button>
+
+  <label title="Cor de Fundo/Transparência" style="display:flex;align-items:center;cursor:pointer;">
+    <span style="font-size:1.1rem;">🏁</span>
+    <input type="color" id="ctxBgColor" value="#ffffff" onchange="applyStyle('backgroundColor',this.value)" style="width:0;height:0;opacity:0;padding:0;border:none;">
+  </label>
+
+  <div class="ctx-sep"></div>
+
+  <button class="ctx-btn ctx-txt-btn" onclick="openPanel('anim', document.getElementById('sb-anim'))">Efeitos</button>
+  <button class="ctx-btn ctx-txt-btn" onclick="openPanel('anim', document.getElementById('sb-anim'))">Animar</button>
+  <button class="ctx-btn ctx-txt-btn" onclick="bringFwd()">Posição</button>
+
+  <div class="ctx-sep"></div>
+
+  <button class="ctx-btn" onclick="dupEl()" title="Clonar/Format Painter">🖌</button>
+  <button class="ctx-btn" style="color:#ef4444;" onclick="delEl()" title="Excluir">🗑</button>
 </div>
 
 <!-- EDITOR BODY -->
