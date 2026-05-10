@@ -97,7 +97,13 @@ function renderSlide(idx){
   slide.style.background = s.bg;
   slide.innerHTML = s.html;
   // reattach events on loaded elements
-  slide.querySelectorAll('.el,.shape-el').forEach(attachElEvents);
+  slide.querySelectorAll('.el,.shape-el').forEach(el => {
+    attachElEvents(el);
+    if(el.classList.contains('webcam-el')) {
+      const v = el.querySelector('video');
+      if(v) startWebcamStream(v);
+    }
+  });
   renderTimeline();
   updateAnimPanel();
 }
@@ -275,6 +281,22 @@ function addInputForm() {
   commitHistory();
 }
 
+// --- WEBCAM STREAM MANAGER ---
+let globalWebcamStream = null;
+async function startWebcamStream(videoElement) {
+  if (!globalWebcamStream) {
+    try {
+      globalWebcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    } catch(err) {
+      console.error(err);
+      videoElement.style.background = '#333';
+      return;
+    }
+  }
+  videoElement.srcObject = globalWebcamStream;
+  videoElement.play().catch(e => console.log(e));
+}
+
 async function addWebcam() {
   const el = document.createElement('div');
   el.className = 'el webcam-el';
@@ -289,13 +311,7 @@ async function addWebcam() {
   el.insertAdjacentHTML('beforeend', resizeHandlesHTML());
   slide.appendChild(el);
   
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-  } catch(err) {
-    console.error("Webcam não permitida ou indisponível", err);
-    video.style.background = '#333';
-  }
+  startWebcamStream(video);
 
   attachElEvents(el);
   saveSlide();
@@ -493,6 +509,18 @@ document.getElementById('canvasWrap').addEventListener('mousedown', e=>{
 // DRAG & RESIZE
 // ============================================================
 function attachElEvents(el){
+  // Faz com que inputs persistam os dados no HTML para salvar o estado (Histórico)
+  const inputField = el.querySelector('input[type="text"]');
+  if (inputField) {
+    inputField.addEventListener('input', function() {
+      this.setAttribute('value', this.value);
+    });
+    inputField.addEventListener('blur', function() {
+      saveSlide();
+      commitHistory();
+    });
+  }
+
   el.addEventListener('mousedown', e=>{
     // --- RESIZE HANDLE ---
     if(e.target.classList.contains('rh')){
@@ -784,11 +812,20 @@ function renderPresSlide(){
   ps.innerHTML = s.html;
   
   // Update GPS Se ativo
-  if(gpsActive) toggleGPS(); toggleGPS(); 
+  if(gpsActive) {
+    gpsActive = false; // reseta temporariamente para forçar a renderização
+    toggleGPS();
+  }
 
   ps.querySelectorAll('.el,.shape-el').forEach((el,i)=>{
     // Esconde post-its na apresentação
     if(el.dataset.type === 'postit') { el.style.display = 'none'; return; }
+    
+    // Lógica da Webcam
+    if(el.classList.contains('webcam-el')) {
+      const v = el.querySelector('video');
+      if(v) startWebcamStream(v);
+    }
     
     // Desativa edição
     const inner = el.querySelector('.el-inner');
