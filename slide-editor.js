@@ -184,8 +184,8 @@ document.getElementById('canvasWrap').addEventListener('mousedown', e=>{
 // ============================================================
 function attachElEvents(el){
   el.addEventListener('mousedown', e=>{
+    // --- RESIZE HANDLE ---
     if(e.target.classList.contains('rh')){
-      // Resize
       e.preventDefault(); e.stopPropagation();
       isResizing = true; resizeEl = el; resizeHandle = e.target;
       const r = el.getBoundingClientRect();
@@ -193,16 +193,35 @@ function attachElEvents(el){
       startX = e.clientX; startY = e.clientY;
       startW = r.width; startH = r.height;
       startL = r.left - sr.left; startT = r.top - sr.top;
-    } else if(!e.target.classList.contains('el-inner') || e.target.contentEditable!=='true' || document.activeElement!==e.target){
-      // Drag
-      e.preventDefault();
-      isDragging = true; dragEl = el;
-      const r = el.getBoundingClientRect();
-      const sr = slide.getBoundingClientRect();
-      startX = e.clientX - (r.left - sr.left);
-      startY = e.clientY - (r.top - sr.top);
-      if(e.target.classList.contains('el-inner') && e.target.contentEditable!=='true') return;
+      selectEl(el);
+      return;
     }
+
+    const inner = e.target.closest('.el-inner');
+
+    // --- ALREADY SELECTED + CLICKING INNER TEXT: allow native text cursor/selection ---
+    if(inner && selEl === el){
+      // Don't preventDefault — let the browser handle text cursor placement
+      // Just re-select the element to keep toolbar visible
+      selectEl(el);
+      return;
+    }
+
+    // --- FIRST CLICK ON ELEMENT: select it (no drag yet) ---
+    if(inner){
+      selectEl(el);
+      // Focus inner so next click enables typing
+      setTimeout(()=>inner.focus(), 0);
+      return;
+    }
+
+    // --- CLICKING ELEMENT BACKGROUND/BORDER (not inner text): start drag ---
+    e.preventDefault();
+    isDragging = true; dragEl = el;
+    const r = el.getBoundingClientRect();
+    const sr = slide.getBoundingClientRect();
+    startX = e.clientX - (r.left - sr.left);
+    startY = e.clientY - (r.top - sr.top);
     selectEl(el);
   });
 }
