@@ -237,6 +237,225 @@ document.addEventListener('paste', (e) => {
 });
 
 // ============================================================
+// RECURSOS AVANÇADOS / INOVAÇÃO
+// ============================================================
+
+function addActionButton() {
+  const el = document.createElement('div');
+  el.className = 'el interactive-btn';
+  el.dataset.anim = 'none';
+  el.dataset.goto = '';
+  el.style.cssText = `left:200px;top:200px;width:150px;height:50px;z-index:${++zTop};background:#6366f1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.1)`;
+  el.innerHTML = `<div class="el-inner" contenteditable="true">Pular para Slide...</div>${resizeHandlesHTML()}`;
+  
+  // Custom double-click to set target slide
+  el.addEventListener('dblclick', () => {
+    if(document.getElementById('pres').classList.contains('show')) return;
+    const target = prompt('Para qual número de slide este botão deve pular? (ex: 2)');
+    if(target) el.dataset.goto = parseInt(target) - 1;
+  });
+
+  slide.appendChild(el);
+  attachElEvents(el);
+  saveSlide();
+  selectEl(el);
+  commitHistory();
+}
+
+function addInputForm() {
+  const el = document.createElement('div');
+  el.className = 'el interactive-input';
+  el.dataset.anim = 'none';
+  el.style.cssText = `left:200px;top:200px;width:250px;height:40px;z-index:${++zTop};background:#f3f4f6;border:2px solid #d1d5db;border-radius:4px;display:flex;align-items:center;padding:0 10px`;
+  el.innerHTML = `<input type="text" placeholder="Digite sua resposta..." style="width:100%;height:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:16px;color:#1f2937" onclick="this.focus()">${resizeHandlesHTML()}`;
+  slide.appendChild(el);
+  attachElEvents(el);
+  saveSlide();
+  selectEl(el);
+  commitHistory();
+}
+
+async function addWebcam() {
+  const el = document.createElement('div');
+  el.className = 'el webcam-el';
+  el.dataset.anim = 'none';
+  el.style.cssText = `left:100px;top:100px;width:320px;height:240px;z-index:${++zTop};background:#000;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.5)`;
+  
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.style.cssText = 'width:100%;height:100%;object-fit:cover;pointer-events:none';
+  
+  el.appendChild(video);
+  el.insertAdjacentHTML('beforeend', resizeHandlesHTML());
+  slide.appendChild(el);
+  
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+  } catch(err) {
+    console.error("Webcam não permitida ou indisponível", err);
+    video.style.background = '#333';
+  }
+
+  attachElEvents(el);
+  saveSlide();
+  selectEl(el);
+  commitHistory();
+}
+
+function add3DModel() {
+  // We use Google's model-viewer for 3D elements
+  if(!document.querySelector('script[src*="model-viewer"]')) {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js';
+    document.head.appendChild(script);
+  }
+
+  const el = document.createElement('div');
+  el.className = 'el model-3d';
+  el.dataset.anim = 'none';
+  el.style.cssText = `left:150px;top:100px;width:300px;height:300px;z-index:${++zTop};background:transparent`;
+  
+  // Usando um modelo 3D de exemplo gratuito (Astronauta)
+  el.innerHTML = `
+    <model-viewer src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" auto-rotate camera-controls style="width:100%;height:100%;pointer-events:auto"></model-viewer>
+    ${resizeHandlesHTML()}
+  `;
+  
+  slide.appendChild(el);
+  attachElEvents(el);
+  saveSlide();
+  selectEl(el);
+  commitHistory();
+}
+
+function addPostIt() {
+  const el = document.createElement('div');
+  el.className = 'el post-it';
+  el.dataset.type = 'postit';
+  el.dataset.anim = 'none';
+  el.style.cssText = `left:50px;top:50px;width:200px;height:200px;z-index:9999;background:#fef08a;box-shadow:2px 4px 10px rgba(0,0,0,0.1);padding:15px;transform:rotate(-2deg)`;
+  el.innerHTML = `<div class="el-inner" contenteditable="true" style="font-size:18px;color:#854d0e;font-family:'Caveat',cursive,sans-serif">Deixe um comentário aqui...</div>${resizeHandlesHTML()}`;
+  
+  // Font pro post-it
+  loadGoogleFont('Caveat');
+  
+  slide.appendChild(el);
+  attachElEvents(el);
+  saveSlide();
+  selectEl(el);
+  commitHistory();
+}
+
+function generateWiki() {
+  saveSlide();
+  let docHTML = '<div style="font-family:Inter,sans-serif;max-width:800px;margin:0 auto;padding:2rem">';
+  docHTML += '<h1>Documentação Gerada: ' + (document.getElementById('pres-title').value) + '</h1>';
+  docHTML += '<p><i>Gerado automaticamente via NEXUS AI a partir dos slides.</i></p><hr>';
+  
+  slides.forEach((s, i) => {
+    docHTML += `<h3>Seção ${i+1}</h3><ul>`;
+    // Extract text from the HTML string
+    const temp = document.createElement('div');
+    temp.innerHTML = s.html;
+    const texts = Array.from(temp.querySelectorAll('.el-inner'))
+                       .map(el => el.innerText.trim())
+                       .filter(t => t.length > 0 && !t.includes("Deixe um comentário")); // ignora post-its vazios
+    
+    if(texts.length === 0) docHTML += '<li><i>(Slide visual)</i></li>';
+    else texts.forEach(t => docHTML += `<li>${t}</li>`);
+    docHTML += '</ul>';
+  });
+  docHTML += '</div>';
+  
+  const w = window.open('','_blank');
+  w.document.write(docHTML);
+  w.document.close();
+}
+
+// --- COACH DE ORATÓRIA (IA) ---
+let coachActive = false;
+let recognition = null;
+let wordCount = 0;
+let fillerCount = 0;
+let startTime = 0;
+
+function toggleCoach() {
+  coachActive = !coachActive;
+  const btn = document.getElementById('coachBtn');
+  const overlay = document.getElementById('coach-overlay');
+  
+  if(coachActive) {
+    btn.style.background = '#eab308';
+    btn.style.color = '#fff';
+    overlay.style.display = 'block';
+    startCoachIA();
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.color = '#eab308';
+    overlay.style.display = 'none';
+    if(recognition) recognition.stop();
+  }
+}
+
+function startCoachIA() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition) {
+    alert("Seu navegador não suporta a Web Speech API. Use o Chrome ou Edge.");
+    toggleCoach();
+    return;
+  }
+  
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'pt-BR';
+  
+  wordCount = 0;
+  fillerCount = 0;
+  startTime = Date.now();
+  
+  recognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      transcript += event.results[i][0].transcript;
+    }
+    
+    // Analisa preenchimentos
+    const fillers = [' tipo ', ' né ', ' éé ', ' hum ', ' então '];
+    let foundFillers = 0;
+    fillers.forEach(f => {
+      const regex = new RegExp(f, 'gi');
+      const matches = transcript.match(regex);
+      if(matches) foundFillers += matches.length;
+    });
+    
+    document.getElementById('coach-fillers').textContent = foundFillers;
+    if(foundFillers > 5) document.getElementById('coach-fillers').style.color = '#ef4444';
+    else document.getElementById('coach-fillers').style.color = '#eab308';
+    
+    // Analisa velocidade
+    const words = transcript.trim().split(/\s+/).length;
+    const minutes = (Date.now() - startTime) / 60000;
+    if(minutes > 0.1) {
+      const wpm = words / minutes;
+      const speedEl = document.getElementById('coach-speed');
+      if(wpm > 150) { speedEl.textContent = 'Muito Rápido!'; speedEl.style.color = '#ef4444'; }
+      else if(wpm < 80) { speedEl.textContent = 'Muito Lento'; speedEl.style.color = '#eab308'; }
+      else { speedEl.textContent = 'Excelente'; speedEl.style.color = '#10b981'; }
+    }
+    
+    // Feedback dinâmico
+    const feedback = document.getElementById('coach-feedback');
+    if(foundFillers > 3) feedback.textContent = '"Faça pausas silenciosas ao invés de usar \'tipo\' ou \'né\'."';
+    else feedback.textContent = '"Continue assim, contato visual e postura!"';
+  };
+  
+  recognition.start();
+}
+
+// ============================================================
 // ELEMENT SELECTION & CONTEXT BAR
 // ============================================================
 function selectEl(el){
@@ -301,8 +520,10 @@ function attachElEvents(el){
     // --- FIRST CLICK ON ELEMENT: select it (no drag yet) ---
     if(inner){
       selectEl(el);
-      // Focus inner so next click enables typing
-      setTimeout(()=>inner.focus(), 0);
+      // Se não for modo apresentação, foca pro edit
+      if(!document.getElementById('pres').classList.contains('show')){
+        setTimeout(()=>inner.focus(), 0);
+      }
       return;
     }
 
@@ -502,38 +723,94 @@ function toggleZen(){
 }
 
 // ============================================================
-// PRESENTATION
+// PRESENTATION & GPS NAVIGATION
 // ============================================================
 let presIdx = 0;
+let gpsActive = false;
+
 function startPresentation(){
   saveSlide();
   presIdx = curIdx;
   document.getElementById('pres').classList.add('show');
+  
+  // Reativar coach se tava ligado
+  if(coachActive && recognition) {
+      document.getElementById('coach-overlay').style.display = 'block';
+  }
+
   renderPresSlide();
   document.addEventListener('keydown', presKey);
 }
+
 function stopPres(){
   document.getElementById('pres').classList.remove('show');
   document.removeEventListener('keydown', presKey);
+  document.getElementById('gps-map').style.display = 'none';
+  gpsActive = false;
 }
+
 function prevSlide(){ if(presIdx>0){ presIdx--; renderPresSlide(); } }
 function nextSlide(){ if(presIdx<slides.length-1){ presIdx++; renderPresSlide(); } }
+
 function presKey(e){
   if(e.key==='ArrowRight'||e.key===' ') nextSlide();
   else if(e.key==='ArrowLeft') prevSlide();
   else if(e.key==='Escape') stopPres();
 }
+
+function toggleGPS() {
+  gpsActive = !gpsActive;
+  const map = document.getElementById('gps-map');
+  if(gpsActive) {
+    map.style.display = 'flex';
+    map.innerHTML = '';
+    slides.forEach((s, i) => {
+      const btn = document.createElement('div');
+      btn.style.cssText = `width:30px;height:20px;background:${i===presIdx?'#6366f1':'#fff'};border:1px solid #333;cursor:pointer;border-radius:2px`;
+      btn.title = 'Ir para slide ' + (i+1);
+      btn.onclick = () => { presIdx = i; renderPresSlide(); };
+      map.appendChild(btn);
+    });
+  } else {
+    map.style.display = 'none';
+  }
+}
+
 function renderPresSlide(){
   const s = slides[presIdx];
   const ps = document.getElementById('pres-slide');
   const sc = Math.min(window.innerWidth/800, window.innerHeight/450) * 0.93;
   ps.style.cssText = `width:800px;height:450px;background:${s.bg};position:relative;overflow:hidden;transform:scale(${sc});transform-origin:center`;
   ps.innerHTML = s.html;
+  
+  // Update GPS Se ativo
+  if(gpsActive) toggleGPS(); toggleGPS(); 
+
   ps.querySelectorAll('.el,.shape-el').forEach((el,i)=>{
-    el.contentEditable = false;
-    el.style.cursor = 'default';
+    // Esconde post-its na apresentação
+    if(el.dataset.type === 'postit') { el.style.display = 'none'; return; }
+    
+    // Desativa edição
+    const inner = el.querySelector('.el-inner');
+    if(inner) inner.contentEditable = false;
+    
     el.classList.remove('sel');
     el.querySelectorAll('.rh').forEach(r=>r.style.display='none');
+    
+    // Lógica de Branching (botão)
+    if(el.classList.contains('interactive-btn') && el.dataset.goto) {
+      el.onclick = () => {
+        const target = parseInt(el.dataset.goto);
+        if(!isNaN(target) && target >= 0 && target < slides.length) {
+          presIdx = target;
+          renderPresSlide();
+        }
+      };
+      el.style.cursor = 'pointer';
+    } else {
+      el.style.cursor = 'default';
+    }
+
     const a = el.dataset.anim;
     if(a && a!=='none'){
       el.style.opacity='0';
@@ -541,6 +818,7 @@ function renderPresSlide(){
       setTimeout(()=>{ el.style.opacity=''; void el.offsetWidth; el.classList.add(a); }, i*150);
     }
   });
+  
   // Slide-level anim
   const sa = s.anim;
   if(sa && sa!=='none'){

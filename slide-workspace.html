@@ -149,6 +149,7 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
     <input id="pres-title" value="Apresentação sem título" />
   </div>
   <div style="display:flex;gap:.5rem">
+    <button class="btn-ghost" id="coachBtn" onclick="toggleCoach()" title="Treinador de Oratória com IA" style="color:#eab308;border-color:#eab308">🎙️ Coach de IA</button>
     <button class="btn-ghost" onclick="toggleZen()">🧘 Zen</button>
     <button class="btn-ghost" onclick="exportHTML()">⬇ Exportar</button>
     <button class="btn" onclick="startPresentation()">▶ Apresentar</button>
@@ -337,6 +338,7 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
     <button class="sb-btn" id="sb-shapes" onclick="openPanel('shapes',this)"><span class="ic">🔷</span>Formas</button>
     <button class="sb-btn" id="sb-bg" onclick="openPanel('bg',this)"><span class="ic">🎨</span>Fundo</button>
     <button class="sb-btn" id="sb-anim" onclick="openPanel('anim',this)"><span class="ic">✨</span>Animar</button>
+    <button class="sb-btn" id="sb-interactive" onclick="openPanel('interactive',this)"><span class="ic">🚀</span>Avançado</button>
   </div>
 
   <!-- PANELS -->
@@ -433,6 +435,32 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
     <button class="btn-ghost" style="margin-top:1rem;width:100%" onclick="testAnim()">▶ Testar</button>
   </div>
 
+  <div class="panel" id="panel-interactive">
+    <h4>Recursos Avançados</h4>
+    
+    <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.3rem;margin-top:.5rem">Navegação e Lógica</div>
+    <button class="txt-add-btn" style="display:flex;align-items:center;gap:.5rem" onclick="addActionButton()">
+      <span style="font-size:1.2rem">🔀</span> Botão de Pulo (Branching)
+    </button>
+    <button class="txt-add-btn" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem" onclick="addInputForm()">
+      <span style="font-size:1.2rem">📝</span> Campo de Input (Forms)
+    </button>
+
+    <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.3rem;margin-top:1rem">Mídia e Realidade</div>
+    <button class="txt-add-btn" style="display:flex;align-items:center;gap:.5rem" onclick="addWebcam()">
+      <span style="font-size:1.2rem">📷</span> Câmera ao Vivo (Streamer)
+    </button>
+    <button class="txt-add-btn" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem" onclick="add3DModel()">
+      <span style="font-size:1.2rem">🧊</span> Modelo 3D Interativo
+    </button>
+
+    <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.3rem;margin-top:1rem">Documentação Viva</div>
+    <button class="txt-add-btn" style="display:flex;align-items:center;gap:.5rem;background:#fef08a;color:#854d0e;border-color:#eab308" onclick="addPostIt()">
+      <span style="font-size:1.2rem">📌</span> Comentário / Post-it
+    </button>
+    <button class="btn" style="margin-top:1rem;width:100%;font-size:.8rem" onclick="generateWiki()">📄 Gerar Wiki via IA</button>
+  </div>
+
   <!-- CANVAS AREA -->
   <div class="canvas-area">
     <div class="canvas-wrap" id="canvasWrap">
@@ -447,12 +475,24 @@ body{font-family:'Outfit',sans-serif;background:#1e1e2e;color:#fff;height:100vh;
 
 <!-- PRESENTATION OVERLAY -->
 <div id="pres">
+  <!-- Mapa de Calor / GPS Mode -->
+  <div id="gps-map" style="position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.7);padding:10px;border-radius:10px;display:none;gap:5px;flex-wrap:wrap;max-width:200px;z-index:10000"></div>
+  
   <div id="pres-slide"></div>
   <div class="pres-ctrl">
+    <button onclick="toggleGPS()" title="Mapa de Calor de Navegação">🗺️</button>
     <button onclick="prevSlide()">◀</button>
     <span id="pres-counter">1 / 1</span>
     <button onclick="nextSlide()">▶</button>
     <button onclick="stopPres()" style="border-color:#f87171;color:#f87171">✕ Sair</button>
+  </div>
+
+  <!-- Coach Overlay -->
+  <div id="coach-overlay" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.8);color:#fff;padding:15px;border-radius:10px;border:1px solid #eab308;display:none;width:300px;z-index:10000;font-family:'Inter',sans-serif">
+    <h3 style="color:#eab308;margin-bottom:10px;font-size:1rem;display:flex;align-items:center;gap:5px">🎙️ IA Coach Ativa</h3>
+    <div style="font-size:0.85rem;margin-bottom:5px">Ritmo: <span id="coach-speed" style="font-weight:bold;color:#10b981">Excelente</span></div>
+    <div style="font-size:0.85rem;margin-bottom:10px">Vícios de linguagem: <span id="coach-fillers" style="font-weight:bold;color:#ef4444">0</span></div>
+    <div id="coach-feedback" style="font-size:0.8rem;color:#94a3b8;font-style:italic">"Lembre-se de pausar após este slide para impacto dramático."</div>
   </div>
 </div>
 
