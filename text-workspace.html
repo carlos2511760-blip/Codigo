@@ -66,6 +66,135 @@
         </div>
         <div class="toolbar-tools">
             <div class="tool-group">
+                <select id="fontSelect" class="tool-btn" style="width: 160px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; border: 1px solid #c8c6c4;" onchange="changeDocFont(this.value)">
+                    <optgroup label="Sans Serif (Modernas e Sem Serifa)">
+                        <option value="Arial">Arial</option>
+                        <option value="Arimo">Arimo</option>
+                        <option value="Cabin">Cabin</option>
+                        <option value="'DM Sans'">DM Sans</option>
+                        <option value="Futura">Futura</option>
+                        <option value="'Gill Sans'">Gill Sans</option>
+                        <option value="Heebo">Heebo</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Karla">Karla</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Manrope">Manrope</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Muli">Muli</option>
+                        <option value="'Noto Sans'">Noto Sans</option>
+                        <option value="Nunito">Nunito</option>
+                        <option value="'Open Sans'">Open Sans</option>
+                        <option value="Oswald">Oswald</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="'PT Sans'">PT Sans</option>
+                        <option value="'Public Sans'">Public Sans</option>
+                        <option value="Quicksand">Quicksand</option>
+                        <option value="Raleway">Raleway</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Tahoma">Tahoma</option>
+                        <option value="'Titillium Web'">Titillium Web</option>
+                        <option value="'Trebuchet MS'">Trebuchet MS</option>
+                        <option value="Ubuntu">Ubuntu</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="'Work Sans'">Work Sans</option>
+                    </optgroup>
+                    <optgroup label="Serif (Clássicas e Com Serifa)">
+                        <option value="Arvo">Arvo</option>
+                        <option value="Baskerville">Baskerville</option>
+                        <option value="Bitter">Bitter</option>
+                        <option value="Bodoni">Bodoni</option>
+                        <option value="Bookman">Bookman</option>
+                        <option value="Cardo">Cardo</option>
+                        <option value="Caslon">Caslon</option>
+                        <option value="'Crimson Text'">Crimson Text</option>
+                        <option value="Didot">Didot</option>
+                        <option value="Domine">Domine</option>
+                        <option value="'EB Garamond'">EB Garamond</option>
+                        <option value="Garamond">Garamond</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="'Goudy Old Style'">Goudy Old Style</option>
+                        <option value="'Josefin Serif'">Josefin Serif</option>
+                        <option value="'Libre Baskerville'">Libre Baskerville</option>
+                        <option value="Lora">Lora</option>
+                        <option value="Merriweather">Merriweather</option>
+                        <option value="Minion">Minion</option>
+                        <option value="Neuton">Neuton</option>
+                        <option value="'Noto Serif'">Noto Serif</option>
+                        <option value="Palatino">Palatino</option>
+                        <option value="'Playfair Display'">Playfair Display</option>
+                        <option value="'PT Serif'">PT Serif</option>
+                        <option value="Rokkitt">Rokkitt</option>
+                        <option value="Sabon">Sabon</option>
+                        <option value="'Times New Roman'" selected>Times New Roman</option>
+                        <option value="Tinos">Tinos</option>
+                        <option value="Vollkorn">Vollkorn</option>
+                        <option value="'Zilla Slab'">Zilla Slab</option>
+                    </optgroup>
+                    <optgroup label="Monospace (Espaçamento Fixo)">
+                        <option value="'Anonymous Pro'">Anonymous Pro</option>
+                        <option value="Consolas">Consolas</option>
+                        <option value="'Courier New'">Courier New</option>
+                        <option value="'Courier Prime'">Courier Prime</option>
+                        <option value="'Fira Code'">Fira Code</option>
+                        <option value="'IBM Plex Mono'">IBM Plex Mono</option>
+                        <option value="Inconsolata">Inconsolata</option>
+                        <option value="'JetBrains Mono'">JetBrains Mono</option>
+                        <option value="'Lucida Console'">Lucida Console</option>
+                        <option value="Monaco">Monaco</option>
+                        <option value="'Roboto Mono'">Roboto Mono</option>
+                        <option value="'Source Code Pro'">Source Code Pro</option>
+                        <option value="'Space Mono'">Space Mono</option>
+                        <option value="'Ubuntu Mono'">Ubuntu Mono</option>
+                        <option value="VT323">VT323</option>
+                    </optgroup>
+                    <optgroup label="Display e Decorativas (Diferentes)">
+                        <option value="'Abril Fatface'">Abril Fatface</option>
+                        <option value="'Amatic SC'">Amatic SC</option>
+                        <option value="Bangers">Bangers</option>
+                        <option value="'Bebas Neue'">Bebas Neue</option>
+                        <option value="Bungee">Bungee</option>
+                        <option value="Chewy">Chewy</option>
+                        <option value="Cinzel">Cinzel</option>
+                        <option value="Comfortaa">Comfortaa</option>
+                        <option value="'Faster One'">Faster One</option>
+                        <option value="'Fredoka One'">Fredoka One</option>
+                        <option value="'Glass Antiqua'">Glass Antiqua</option>
+                        <option value="'Indie Flower'">Indie Flower</option>
+                        <option value="'Kelly Slab'">Kelly Slab</option>
+                        <option value="Lobster">Lobster</option>
+                        <option value="'Luckiest Guy'">Luckiest Guy</option>
+                        <option value="Megrim">Megrim</option>
+                        <option value="Monoton">Monoton</option>
+                        <option value="Orbitron">Orbitron</option>
+                        <option value="Pacifico">Pacifico</option>
+                        <option value="'Permanent Marker'">Permanent Marker</option>
+                        <option value="'Press Start 2P'">Press Start 2P</option>
+                        <option value="Righteous">Righteous</option>
+                        <option value="Satisfy">Satisfy</option>
+                        <option value="'Shadows Into Light'">Shadows Into Light</option>
+                        <option value="'Special Elite'">Special Elite</option>
+                    </optgroup>
+                    <optgroup label="Script e Cursivas (Manuscritas)">
+                        <option value="'Alex Brush'">Alex Brush</option>
+                        <option value="Allura">Allura</option>
+                        <option value="Arizonia">Arizonia</option>
+                        <option value="'Berkshire Swash'">Berkshire Swash</option>
+                        <option value="Cookie">Cookie</option>
+                        <option value="'Dancing Script'">Dancing Script</option>
+                        <option value="'Great Vibes'">Great Vibes</option>
+                        <option value="'Kaushan Script'">Kaushan Script</option>
+                        <option value="Parisienne">Parisienne</option>
+                        <option value="'Petit Formal Script'">Petit Formal Script</option>
+                        <option value="'Pinyon Script'">Pinyon Script</option>
+                        <option value="Rochester">Rochester</option>
+                        <option value="Sacramento">Sacramento</option>
+                        <option value="Tangerine">Tangerine</option>
+                        <option value="Yellowtail">Yellowtail</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="tool-group">
                 <button class="tool-btn" onclick="document.execCommand('bold', false, null)" title="Negrito"><b>B</b></button>
                 <button class="tool-btn" onclick="document.execCommand('italic', false, null)" title="Itálico"><i>I</i></button>
                 <button class="tool-btn" onclick="document.execCommand('underline', false, null)" title="Sublinhado"><u>U</u></button>
@@ -100,5 +229,27 @@
         </div>
     </div>
 
+    <script>
+        function changeDocFont(fontFamily) {
+            loadGoogleFont(fontFamily);
+            document.execCommand('fontName', false, fontFamily);
+        }
+
+        function loadGoogleFont(fontFamily) {
+            const cleanFont = fontFamily.replace(/['"]/g, '');
+            // Verifica se não é uma fonte padrão de sistema comum
+            const systemFonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Tahoma', 'Trebuchet MS', 'Arial Black', 'Impact', 'Consolas', 'Lucida Console', 'Monaco', 'Futura', 'Gill Sans', 'Bodoni', 'Didot', 'Sabon', 'Minion'];
+            if (systemFonts.includes(cleanFont)) return;
+
+            const fontId = 'font-' + cleanFont.replace(/\s+/g, '-').toLowerCase();
+            if (!document.getElementById(fontId)) {
+                const link = document.createElement('link');
+                link.id = fontId;
+                link.rel = 'stylesheet';
+                link.href = `https://fonts.googleapis.com/css2?family=${cleanFont.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
+                document.head.appendChild(link);
+            }
+        }
+    </script>
 </body>
 </html>

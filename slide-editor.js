@@ -256,11 +256,27 @@ document.addEventListener('mouseup', ()=>{
 // FORMATTING (works on selection OR whole element)
 // ============================================================
 function applyStyle(prop, val){
+  if(prop === 'fontFamily') loadGoogleFont(val);
   if(!selEl) return;
   const inner = selEl.querySelector('.el-inner');
   if(inner) inner.style[prop] = val;
   else selEl.style[prop] = val;
   saveSlide();
+}
+
+function loadGoogleFont(fontFamily) {
+  const cleanFont = fontFamily.replace(/['"]/g, '');
+  const systemFonts = ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Tahoma', 'Trebuchet MS', 'Arial Black', 'Impact', 'Consolas', 'Lucida Console', 'Monaco', 'Futura', 'Gill Sans', 'Bodoni', 'Didot', 'Sabon', 'Minion'];
+  if (systemFonts.includes(cleanFont)) return;
+
+  const fontId = 'font-' + cleanFont.replace(/\s+/g, '-').toLowerCase();
+  if (!document.getElementById(fontId)) {
+    const link = document.createElement('link');
+    link.id = fontId;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${cleanFont.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
+    document.head.appendChild(link);
+  }
 }
 
 function applyColorToSelection(color){
