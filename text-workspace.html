@@ -244,15 +244,9 @@
             saveDocState();
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
-                e.preventDefault();
-                docUndo();
-            } else if (e.ctrlKey && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-                e.preventDefault();
-                docRedo();
-            }
-        });
+        // Nota: Removida a interceptação de keydown (Ctrl+Z) para permitir o comportamento 
+        // nativo do navegador dentro do editor, o que preserva a seleção e o cursor.
+        // Os botões da UI continuam usando docUndo() e docRedo() se necessário.
 
         // Initialize history
         window.addEventListener('load', () => {

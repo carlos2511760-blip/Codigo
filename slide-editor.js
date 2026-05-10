@@ -75,6 +75,12 @@ function restoreHistory(state) {
 
 document.addEventListener('keydown', (e) => {
   if (document.getElementById('pres').classList.contains('show')) return;
+  
+  // Se estiver editando texto (focado em el-inner), deixa o navegador lidar com o Ctrl+Z nativo
+  if (document.activeElement && document.activeElement.classList.contains('el-inner')) {
+    return; 
+  }
+
   if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
     e.preventDefault();
     undo();
