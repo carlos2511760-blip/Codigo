@@ -284,9 +284,10 @@ function addInputForm() {
 // --- WEBCAM STREAM MANAGER ---
 let globalWebcamStream = null;
 async function startWebcamStream(videoElement) {
-  if (!globalWebcamStream) {
+  if (!globalWebcamStream || !globalWebcamStream.active) {
     try {
-      globalWebcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Requisita apenas vídeo para evitar problemas de permissão mista ou de áudio.
+      globalWebcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     } catch(err) {
       console.error("Camera Error:", err);
       videoElement.style.background = '#333';
@@ -299,11 +300,17 @@ async function startWebcamStream(videoElement) {
   videoElement.autoplay = true;
   videoElement.srcObject = globalWebcamStream;
   
-  videoElement.onloadedmetadata = () => {
-    videoElement.play().then(() => {
+  // Tenta iniciar a reprodução imediatamente
+  const playPromise = videoElement.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
         console.log("Camera playing successfully");
-    }).catch(e => console.log('Autoplay block:', e));
-  };
+    }).catch(e => {
+        console.log('Autoplay block or delay:', e);
+        // Fallback: tenta dnv no loadedmetadata
+        videoElement.onloadedmetadata = () => videoElement.play().catch(console.error);
+    });
+  }
 }
 
 async function addWebcam() {
@@ -313,9 +320,12 @@ async function addWebcam() {
   el.style.cssText = `left:100px;top:100px;width:320px;height:240px;z-index:${++zTop};background:#000;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.5)`;
   
   const video = document.createElement('video');
-  video.setAttribute('autoplay', 'true');
-  video.setAttribute('muted', 'true');
-  video.setAttribute('playsinline', 'true');
+  video.autoplay = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.setAttribute('autoplay', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
   video.style.cssText = 'width:100%;height:100%;object-fit:cover;pointer-events:none';
   
   el.appendChild(video);
