@@ -293,8 +293,10 @@ async function startWebcamStream(videoElement) {
       return;
     }
   }
+  videoElement.muted = true;
+  videoElement.playsInline = true;
   videoElement.srcObject = globalWebcamStream;
-  videoElement.play().catch(e => console.log(e));
+  videoElement.play().catch(e => console.log('Autoplay block:', e));
 }
 
 async function addWebcam() {
@@ -305,6 +307,10 @@ async function addWebcam() {
   
   const video = document.createElement('video');
   video.autoplay = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
   video.style.cssText = 'width:100%;height:100%;object-fit:cover;pointer-events:none';
   
   el.appendChild(video);
