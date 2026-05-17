@@ -334,10 +334,17 @@ async function runPiston(L, code) {
   const pLang = pMap[curLang] || curLang;
   
   try {
+    let filename = 'main.' + L.ext;
+    if (curLang === 'java') filename = 'Main.java';
+
     const res = await fetch('https://emkc.org/api/v2/piston/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ language: pLang, version: "*", files: [{ content: code }] })
+      body: JSON.stringify({
+        language: pLang,
+        version: "*",
+        files: [{ name: filename, content: code }]
+      })
     });
     const data = await res.json();
     if(data.message) {
