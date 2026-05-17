@@ -3,232 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desenvolvimento | Nexus Workspace</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Desenvolvimento | Nexus Workspace Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* Base styles */
-        body { margin: 0; padding: 0; overflow: hidden; background: #0f111a; color: white; font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; height: 100vh; }
-        .gradient-text { background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
+        :root { --bg: #0f111a; --bg-alt: #1a1d2d; --accent: #6366f1; --accent-hover: #4f46e5; --text: #f8fafc; --text-muted: #94a3b8; --border: #334155; --success: #10b981; --error: #ef4444; }
+        body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #050505; border-bottom: 1px solid var(--border); }
+        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 1rem; }
+        .logo { font-weight: 800; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; }
+        select, button { font-family: 'Outfit', sans-serif; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; outline: none; }
+        select:hover, button:hover { border-color: var(--accent); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-success { background: var(--success); border-color: var(--success); font-weight: 600; }
+        .main-content { display: flex; flex: 1; overflow: hidden; }
         
-        /* Header */
-        .header { background: #050505; border-bottom: 1px solid #1f2937; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .header-left a { text-decoration: none; font-size: 1.2rem; }
-        .btn-run { background: #10b981; color: white; border: none; padding: 0.4rem 1rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-run:hover { background: #059669; }
+        /* Sidebar Histórico */
+        .sidebar { width: 250px; background: #050505; border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s; }
+        .sidebar.hidden { width: 0; border: none; overflow: hidden; }
+        .sidebar-header { padding: 1rem; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .history-list { flex: 1; overflow-y: auto; padding: 0.5rem; }
+        .history-item { padding: 0.75rem; border-radius: 6px; background: var(--bg-alt); margin-bottom: 0.5rem; cursor: pointer; border: 1px solid transparent; font-size: 0.85rem; }
+        .history-item:hover { border-color: var(--accent); }
+        .history-time { font-size: 0.75rem; color: var(--text-muted); }
 
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-
-        /* Sidebar */
-        .sidebar { width: 220px; background: #050505; border-right: 1px solid #1f2937; display: flex; flex-direction: column; }
-        .sidebar-title { font-size: 0.8rem; color: #9ca3af; padding: 1rem; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-add { background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 1.2rem; }
-        .btn-add:hover { color: white; }
-        
-        .file-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
-        .file-item { padding: 0.5rem 1rem; cursor: pointer; color: #d1d5db; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .file-item:hover, .file-item.active { background: #1f2937; color: white; }
-        
-        /* Language Selector Modal */
-        .lang-modal { display: none; position: absolute; top: 110px; left: 200px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 1rem; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .lang-modal select, .lang-modal input { width: 100%; margin-bottom: 1rem; padding: 0.5rem; background: #0f111a; border: 1px solid #374151; color: white; border-radius: 4px; font-family: inherit; }
-        .lang-modal button { width: 100%; background: #6366f1; color: white; border: none; padding: 0.5rem; border-radius: 4px; cursor: pointer; }
-        
         /* Editor */
-        .editor-area { flex: 1; display: flex; flex-direction: column; background: #0f111a; border-right: 1px solid #1f2937; }
-        .tabs { display: flex; background: #050505; border-bottom: 1px solid #1f2937; overflow-x: auto; }
-        .tab { padding: 0.6rem 1.2rem; color: #9ca3af; cursor: pointer; border-right: 1px solid #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-        .tab.active { background: #0f111a; color: white; border-top: 2px solid #6366f1; }
+        .editor-pane { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .editor-header { padding: 0.5rem 1rem; background: var(--bg-alt); border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .editor-container { flex: 1; display: flex; position: relative; }
+        .line-numbers { width: 40px; padding: 1rem 0; background: var(--bg-alt); text-align: right; font-family: 'Fira Code', monospace; color: var(--border); font-size: 14px; line-height: 1.5; border-right: 1px solid var(--border); overflow: hidden; user-select: none; }
+        .code-input { flex: 1; padding: 1rem; background: transparent; color: #a5b4fc; font-family: 'Fira Code', monospace; font-size: 14px; line-height: 1.5; border: none; outline: none; resize: none; white-space: pre; }
         
-        .code-input { flex: 1; background: transparent; color: #a5b4fc; font-family: 'Fira Code', monospace; font-size: 14px; padding: 1rem; border: none; resize: none; outline: none; line-height: 1.6; }
-
-        /* Preview */
-        .preview-area { flex: 1; display: flex; flex-direction: column; background: white; }
-        .preview-header { background: #f3f4f6; color: #374151; padding: 0.6rem 1rem; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; font-weight: bold; }
-        iframe { flex: 1; width: 100%; border: none; }
-
-        .icon-html { color: #e34f26; }
-        .icon-css { color: #264de4; }
-        .icon-js { color: #f7df1e; }
-        .icon-py { color: #3776ab; }
-        .icon-other { color: #9ca3af; }
-
+        /* Saída (Preview, Console, Erros) */
+        .output-pane { flex: 1; display: flex; flex-direction: column; background: #fff; color: #000; }
+        .output-tabs { display: flex; background: var(--bg-alt); color: var(--text); border-bottom: 1px solid var(--border); }
+        .tab { padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.9rem; font-weight: 600; }
+        .tab.active { border-color: var(--accent); color: var(--accent); }
+        .tab-badge { background: var(--error); color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.7rem; margin-left: 0.5rem; display: none; }
+        .tab-badge.show { display: inline-block; }
+        
+        .output-content { flex: 1; position: relative; overflow: hidden; }
+        .output-view { position: absolute; inset: 0; display: none; overflow: auto; }
+        .output-view.active { display: block; }
+        
+        #preview-frame { width: 100%; height: 100%; border: none; background: white; }
+        
+        #console-view { background: #1e1e1e; color: #d4d4d4; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 13px; }
+        .log-entry { margin-bottom: 0.25rem; border-bottom: 1px solid #333; padding-bottom: 0.25rem; }
+        .log-entry.error { color: #f87171; }
+        .log-entry.warn { color: #fbbf24; }
+        
+        #errors-view { background: #fee2e2; padding: 1.5rem; }
+        .error-card { background: white; border-left: 4px solid var(--error); padding: 1rem; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .error-card h4 { margin: 0 0 0.5rem 0; color: var(--error); font-family: 'Fira Code', monospace; font-size: 14px; }
+        .error-card p { margin: 0 0 1rem 0; font-size: 0.9rem; color: #4b5563; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="header-left">
-            <a href="workspace.html"><span class="gradient-text">NEXUS</span> <span style="color: #6b7280; font-size: 0.9rem;">/ Code Workspace</span></a>
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="workspace.html" style="text-decoration:none; color:var(--text-muted); font-size: 1.2rem;" title="Voltar ao Hub">⬅</a>
+            <span class="logo">NEXUS Sandbox</span>
+            <select id="framework-select">
+                <option value="html-js">Vanilla (HTML/JS/CSS)</option>
+                <option value="react">React (via CDN)</option>
+                <option value="tailwind">Tailwind CSS</option>
+            </select>
         </div>
-        <div>
-            <button class="btn-run" onclick="runCode()">Executar Web 🚀</button>
-        </div>
-    </div>
-
-    <div class="main-layout">
-        <div class="sidebar">
-            <div class="sidebar-title">
-                Arquivos
-                <button class="btn-add" onclick="toggleModal()">+</button>
-            </div>
-            
-            <ul class="file-list" id="file-list">
-                <li class="file-item active" onclick="switchFile('index.html')"><span class="icon-html">📄</span> index.html</li>
-                <li class="file-item" onclick="switchFile('style.css')"><span class="icon-css">🎨</span> style.css</li>
-                <li class="file-item" onclick="switchFile('script.js')"><span class="icon-js">⚡</span> script.js</li>
-            </ul>
-        </div>
-
-        <div class="editor-area">
-            <div class="tabs" id="tabs">
-                <div class="tab active" id="tab-index.html" onclick="switchFile('index.html')"><span class="icon-html">📄</span> index.html</div>
-                <div class="tab" id="tab-style.css" onclick="switchFile('style.css')"><span class="icon-css">🎨</span> style.css</div>
-                <div class="tab" id="tab-script.js" onclick="switchFile('script.js')"><span class="icon-js">⚡</span> script.js</div>
-            </div>
-            <textarea id="code-editor" class="code-input" spellcheck="false"></textarea>
-        </div>
-
-        <div class="preview-area">
-            <div class="preview-header">Resultado ao Vivo</div>
-            <iframe id="preview-frame"></iframe>
+        <div class="topbar-right">
+            <button onclick="formatCode()">✨ Clean Code</button>
+            <button onclick="toggleHistory()">⏱ Histórico</button>
+            <button class="btn-success" onclick="executeCode()">▶ Executar Código</button>
         </div>
     </div>
 
-    <!-- Modal para Nova Linguagem -->
-    <div class="lang-modal" id="lang-modal">
-        <h4 style="margin: 0 0 1rem 0;">Novo Arquivo</h4>
-        <input type="text" id="new-filename" placeholder="Ex: main">
-        <select id="new-language">
-            <option value=".html">HTML (.html)</option>
-            <option value=".css">CSS (.css)</option>
-            <option value=".js">JavaScript (.js)</option>
-            <option value=".py">Python (.py)</option>
-            <option value=".txt">Texto (.txt)</option>
-        </select>
-        <button onclick="createNewFile()">Criar</button>
+    <div class="main-content">
+        <!-- Sidebar Histórico -->
+        <div class="sidebar" id="history-sidebar">
+            <div class="sidebar-header">
+                Histórico de Versões
+                <button onclick="toggleHistory()" style="padding:0.2rem 0.5rem; background:transparent; border:none; color:var(--text-muted);">✕</button>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- Itens inseridos via JS -->
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="editor-pane">
+            <div class="editor-header">
+                <span id="file-label">index.html</span>
+                <span style="color: var(--success); font-size: 0.8rem;">● Ambiente Pronto</span>
+            </div>
+            <div class="editor-container">
+                <div class="line-numbers" id="line-numbers">1</div>
+                <textarea id="code-editor" class="code-input" spellcheck="false" oninput="updateLineNumbers(); saveStateDebounced();" onscroll="syncScroll()"><!-- Insira seu código aqui. Exemplo: -->
+<div style="padding: 20px; text-align: center; font-family: sans-serif;">
+    <h1 style="color: #6366f1;">Bem-vindo ao Nexus Sandbox</h1>
+    <p>Clique em "Executar Código" para ver o resultado ao vivo.</p>
+    <button onclick="testar()">Testar Console</button>
+</div>
+<script>
+    function testar() {
+        console.log("Botão clicado! Funciona perfeitamente.");
+    }
+</script></textarea>
+            </div>
+        </div>
+
+        <!-- Output -->
+        <div class="output-pane">
+            <div class="output-tabs">
+                <div class="tab active" onclick="switchTab('preview')" id="tab-preview">Preview Visual</div>
+                <div class="tab" onclick="switchTab('console')" id="tab-console">Console</div>
+                <div class="tab" onclick="switchTab('errors')" id="tab-errors">Erros <span class="tab-badge" id="error-badge">0</span></div>
+            </div>
+            <div class="output-content">
+                <div class="output-view active" id="view-preview">
+                    <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
+                </div>
+                <div class="output-view" id="view-console">
+                    <!-- Logs inseridos aqui -->
+                </div>
+                <div class="output-view" id="view-errors">
+                    <div id="error-container">
+                        <p style="color: #4b5563; text-align: center; margin-top: 2rem;">Nenhum erro de execução detectado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // File Storage system
-        const files = {
-            'index.html': { lang: 'html', icon: 'icon-html', emoji: '📄', content: '<h1>Olá, NEXUS!</h1>\n<p>Edite o código e clique em Executar.</p>' },
-            'style.css': { lang: 'css', icon: 'icon-css', emoji: '🎨', content: 'h1 { color: #6366f1; }' },
-            'script.js': { lang: 'js', icon: 'icon-js', emoji: '⚡', content: 'console.log("Sistema iniciado.");' }
-        };
-
-        let currentFile = 'index.html';
+        // Sistema de Estado e Histórico
+        let history = [];
+        let historyTimer = null;
         const editor = document.getElementById('code-editor');
+        const lineNumbers = document.getElementById('line-numbers');
+        const previewFrame = document.getElementById('preview-frame');
+        const consoleView = document.getElementById('view-console');
+        const errorContainer = document.getElementById('error-container');
+        const errorBadge = document.getElementById('error-badge');
 
-        // Load initial content
-        editor.value = files[currentFile].content;
+        function updateLineNumbers() {
+            const lines = editor.value.split('\n').length;
+            lineNumbers.innerHTML = Array(lines).fill(0).map((_, i) => i + 1).join('<br>');
+        }
 
-        // Automatically save to the object when typing
-        editor.addEventListener('input', () => {
-            if(currentFile) {
-                files[currentFile].content = editor.value;
-            }
-        });
+        function syncScroll() {
+            lineNumbers.scrollTop = editor.scrollTop;
+        }
 
-        function switchFile(filename) {
-            currentFile = filename;
-            editor.value = files[filename].content;
-            
-            // Update active states
-            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            
-            // Try to find the matching elements and add active
-            const items = document.querySelectorAll('.file-item');
-            items.forEach(item => {
-                if(item.textContent.includes(filename)) item.classList.add('active');
+        // Debounce para salvar histórico
+        function saveStateDebounced() {
+            clearTimeout(historyTimer);
+            historyTimer = setTimeout(() => {
+                saveToHistory(editor.value);
+            }, 2000);
+        }
+
+        function saveToHistory(code) {
+            if(history.length > 0 && history[history.length-1].code === code) return;
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            history.push({ time: timeStr, code: code });
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<div>Edição Automática</div><div class="history-time">${item.time}</div>`;
+                div.onclick = () => {
+                    editor.value = item.code;
+                    updateLineNumbers();
+                    executeCode();
+                };
+                list.prepend(div);
             });
+        }
+
+        function toggleHistory() {
+            document.getElementById('history-sidebar').classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.output-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('view-' + tabName).classList.add('active');
+        }
+
+        function formatCode() {
+            // Simulador básico de indentação (Clean Code)
+            let code = editor.value;
+            try {
+                // Tentativa super rudimentar de formatar HTML/JS rápido
+                code = code.replace(/></g, '>\n<').replace(/\{/g, '{\n  ').replace(/\}/g, '\n}');
+                editor.value = code;
+                updateLineNumbers();
+                alert("Código formatado e otimizado visualmente!");
+            } catch(e) {
+                console.log("Falha ao formatar");
+            }
+        }
+
+        // Tratamento de Erros e Correção Inteligente
+        function fixError(errorMessage) {
+            alert("Sistema de Debug Inteligente ativado.\nAplicando correção sugerida para: " + errorMessage);
+            // Simula uma IA corrigindo
+            if(errorMessage.includes("is not defined")) {
+                editor.value = "// Correção aplicada: Variável declarada\nlet testVar = 0;\n" + editor.value;
+            } else if(errorMessage.includes("Unexpected token")) {
+                alert("Verifique chaves {} ou parênteses () faltando na sintaxe.");
+            }
+            updateLineNumbers();
+            executeCode();
+        }
+
+        // Motor de Execução (Sandbox)
+        function executeCode() {
+            const rawCode = editor.value;
+            const framework = document.getElementById('framework-select').value;
             
-            const tab = document.getElementById('tab-' + filename);
-            if(tab) tab.classList.add('active');
-        }
+            // Limpa Console e Erros
+            consoleView.innerHTML = '';
+            errorContainer.innerHTML = '<p style="color: #4b5563; text-align: center; margin-top: 2rem;">Nenhum erro de execução detectado.</p>';
+            errorBadge.classList.remove('show');
+            errorBadge.textContent = '0';
+            let errorCount = 0;
 
-        function toggleModal() {
-            const modal = document.getElementById('lang-modal');
-            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function createNewFile() {
-            const name = document.getElementById('new-filename').value || 'untitled';
-            const ext = document.getElementById('new-language').value;
-            const fullName = name + ext;
-            
-            if(files[fullName]) {
-                alert('Arquivo já existe!');
-                return;
+            // Injetor de Dependências e Captura de Console
+            let headInject = '';
+            if (framework === 'react') {
+                headInject = `
+                    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin><\/script>
+                    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin><\/script>
+                    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+                `;
+            } else if (framework === 'tailwind') {
+                headInject = `<script src="https://cdn.tailwindcss.com"><\/script>`;
             }
 
-            let iconClass = 'icon-other';
-            let emoji = '📄';
-            if(ext === '.html') { iconClass = 'icon-html'; emoji = '📄'; }
-            if(ext === '.css') { iconClass = 'icon-css'; emoji = '🎨'; }
-            if(ext === '.js') { iconClass = 'icon-js'; emoji = '⚡'; }
-            if(ext === '.py') { iconClass = 'icon-py'; emoji = '🐍'; }
+            // Script interceptador injetado no iframe
+            const interceptorScript = `
+                <script>
+                    const parentConsole = window.parent;
+                    ['log', 'error', 'warn', 'info'].forEach(method => {
+                        const original = console[method];
+                        console[method] = function(...args) {
+                            parentConsole.postMessage({ type: 'console', method: method, args: args.map(a => String(a)) }, '*');
+                            original.apply(console, args);
+                        };
+                    });
+                    window.onerror = function(message, source, lineno, colno, error) {
+                        parentConsole.postMessage({ type: 'error', message: message, line: lineno }, '*');
+                        return false;
+                    };
+                <\/script>
+            `;
 
-            // Add to storage
-            files[fullName] = { lang: ext.substring(1), icon: iconClass, emoji: emoji, content: '' };
-
-            // Add to Sidebar
-            const li = document.createElement('li');
-            li.className = 'file-item';
-            li.innerHTML = `<span class="${iconClass}">${emoji}</span> ${fullName}`;
-            li.onclick = () => switchFile(fullName);
-            document.getElementById('file-list').appendChild(li);
-
-            // Add to Tabs
-            const tab = document.createElement('div');
-            tab.className = 'tab';
-            tab.id = 'tab-' + fullName;
-            tab.innerHTML = `<span class="${iconClass}">${emoji}</span> ${fullName}`;
-            tab.onclick = () => switchFile(fullName);
-            document.getElementById('tabs').appendChild(tab);
-
-            toggleModal();
-            switchFile(fullName);
-        }
-
-        function runCode() {
-            // Check if we have HTML to run
-            let htmlContent = '';
-            let cssContent = '';
-            let jsContent = '';
-
-            // Find first HTML, CSS and JS files
-            for(let key in files) {
-                if(key.endsWith('.html') && !htmlContent) htmlContent = files[key].content;
-                if(key.endsWith('.css') && !cssContent) cssContent = files[key].content;
-                if(key.endsWith('.js') && !jsContent) jsContent = files[key].content;
+            // Construir o HTML final
+            let finalCode = rawCode;
+            if (framework === 'react') {
+                // Se for react e não tiver tag <script type="text/babel">, envelopa
+                if(!rawCode.includes('type="text/babel"')) {
+                     finalCode = `<div id="root"></div>\n<script type="text/babel">\n${rawCode}\n<\/script>`;
+                }
             }
 
-            if(!htmlContent && !jsContent) {
-                alert('Aviso: O preview web requer arquivos HTML/JS. Outras linguagens precisam de backend para executar.');
-                return;
-            }
-
-            const previewFrame = document.getElementById('preview-frame');
-            const content = `
+            const htmlContent = `
                 <!DOCTYPE html>
                 <html>
-                <head><style>${cssContent}</style></head>
+                <head>
+                    <meta charset="UTF-8">
+                    ${headInject}
+                    ${interceptorScript}
+                </head>
                 <body>
-                    ${htmlContent}
-                    <script>${jsContent}<\/script>
+                    ${finalCode}
                 </body>
                 </html>
             `;
-            const blob = new Blob([content], { type: 'text/html' });
+
+            // Renderiza no Iframe
+            const blob = new Blob([htmlContent], { type: 'text/html' });
             previewFrame.src = URL.createObjectURL(blob);
+
+            // Listener para mensagens do Iframe
+            window.onmessage = function(e) {
+                if(e.data.type === 'console') {
+                    const div = document.createElement('div');
+                    div.className = 'log-entry ' + e.data.method;
+                    div.textContent = `> ${e.data.args.join(' ')}`;
+                    consoleView.appendChild(div);
+                    if(e.data.method === 'error') {
+                        registerError(e.data.args.join(' '), "N/A");
+                    }
+                } else if(e.data.type === 'error') {
+                    registerError(e.data.message, e.data.line);
+                }
+            };
+
+            function registerError(msg, line) {
+                if(errorCount === 0) errorContainer.innerHTML = ''; // Limpa empty state
+                errorCount++;
+                errorBadge.textContent = errorCount;
+                errorBadge.classList.add('show');
+                
+                const card = document.createElement('div');
+                card.className = 'error-card';
+                card.innerHTML = `
+                    <h4>Erro Detectado (Linha ${line})</h4>
+                    <p>${msg}</p>
+                    <button class="btn-primary" onclick="window.parent.fixError('${msg.replace(/'/g, "\\'")}')">🔧 Sugerir Correção Automática</button>
+                `;
+                errorContainer.appendChild(card);
+                
+                // Se der erro, muda pra aba de erros automaticamente
+                if(errorCount === 1) switchTab('errors');
+            }
         }
 
-        // Initial run
-        window.onload = runCode;
+        // Init
+        updateLineNumbers();
+        saveToHistory(editor.value);
+        executeCode();
+
     </script>
 </body>
 </html>
