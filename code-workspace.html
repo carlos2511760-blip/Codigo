@@ -1,399 +1,309 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desenvolvimento | Nexus Workspace Premium</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #0f111a; --bg-alt: #1a1d2d; --accent: #6366f1; --accent-hover: #4f46e5; --text: #f8fafc; --text-muted: #94a3b8; --border: #334155; --success: #10b981; --error: #ef4444; }
-        body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #050505; border-bottom: 1px solid var(--border); }
-        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 1rem; }
-        .logo { font-weight: 800; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; }
-        select, button { font-family: 'Outfit', sans-serif; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; outline: none; }
-        select:hover, button:hover { border-color: var(--accent); }
-        .btn-primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-success { background: var(--success); border-color: var(--success); font-weight: 600; }
-        .main-content { display: flex; flex: 1; overflow: hidden; }
-        
-        /* Sidebar Histórico */
-        .sidebar { width: 250px; background: #050505; border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s; }
-        .sidebar.hidden { width: 0; border: none; overflow: hidden; }
-        .sidebar-header { padding: 1rem; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-        .history-list { flex: 1; overflow-y: auto; padding: 0.5rem; }
-        .history-item { padding: 0.75rem; border-radius: 6px; background: var(--bg-alt); margin-bottom: 0.5rem; cursor: pointer; border: 1px solid transparent; font-size: 0.85rem; }
-        .history-item:hover { border-color: var(--accent); }
-        .history-time { font-size: 0.75rem; color: var(--text-muted); }
-
-        /* Editor */
-        .editor-pane { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .editor-header { padding: 0.5rem 1rem; background: var(--bg-alt); border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); display: flex; justify-content: space-between; }
-        .editor-container { flex: 1; display: flex; position: relative; }
-        .line-numbers { width: 40px; padding: 1rem 0; background: var(--bg-alt); text-align: right; font-family: 'Fira Code', monospace; color: var(--border); font-size: 14px; line-height: 1.5; border-right: 1px solid var(--border); overflow: hidden; user-select: none; }
-        .code-input { flex: 1; padding: 1rem; background: transparent; color: #a5b4fc; font-family: 'Fira Code', monospace; font-size: 14px; line-height: 1.5; border: none; outline: none; resize: none; white-space: pre; }
-        
-        /* Saída (Preview, Console, Erros) */
-        .output-pane { flex: 1; display: flex; flex-direction: column; background: #fff; color: #000; }
-        .output-tabs { display: flex; background: var(--bg-alt); color: var(--text); border-bottom: 1px solid var(--border); }
-        .tab { padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.9rem; font-weight: 600; }
-        .tab.active { border-color: var(--accent); color: var(--accent); }
-        .tab-badge { background: var(--error); color: white; border-radius: 12px; padding: 2px 6px; font-size: 0.7rem; margin-left: 0.5rem; display: none; }
-        .tab-badge.show { display: inline-block; }
-        
-        .output-content { flex: 1; position: relative; overflow: hidden; }
-        .output-view { position: absolute; inset: 0; display: none; overflow: auto; }
-        .output-view.active { display: block; }
-        
-        #preview-frame { width: 100%; height: 100%; border: none; background: white; }
-        
-        #console-view { background: #1e1e1e; color: #d4d4d4; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 13px; }
-        .log-entry { margin-bottom: 0.25rem; border-bottom: 1px solid #333; padding-bottom: 0.25rem; }
-        .log-entry.error { color: #f87171; }
-        .log-entry.warn { color: #fbbf24; }
-        
-        #errors-view { background: #fee2e2; padding: 1.5rem; }
-        .error-card { background: white; border-left: 4px solid var(--error); padding: 1rem; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-        .error-card h4 { margin: 0 0 0.5rem 0; color: var(--error); font-family: 'Fira Code', monospace; font-size: 14px; }
-        .error-card p { margin: 0 0 1rem 0; font-size: 0.9rem; color: #4b5563; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NEXUS Dev | Polyglot Sandbox</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f111a;--bg2:#1a1d2d;--bg3:#0a0b12;--accent:#6366f1;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--text:#f1f5f9;--muted:#64748b;--border:#1e2640}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--bg3);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;align-items:center;gap:.6rem;flex-shrink:0}
+.logo{font-weight:800;background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;font-size:1rem}
+select,button{font-family:'Outfit',sans-serif;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);cursor:pointer;outline:none;padding:.3rem .7rem;font-size:.82rem}
+select:hover,button:hover{border-color:var(--accent)}
+#lang-select{width:210px}
+.btn-run{background:var(--green);border-color:var(--green);font-weight:700;color:#fff}
+.btn-run:hover{background:#059669}
+.btn-learn{background:linear-gradient(135deg,#6366f1,#ec4899);border:none;color:#fff;font-weight:700}
+.sp{flex:1}
+.main{display:flex;flex:1;overflow:hidden}
+/* Sidebar */
+.sidebar{width:230px;background:var(--bg3);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:.3s}
+.sidebar.hidden{width:0;overflow:hidden;border:none}
+.sh{padding:.7rem 1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sh button{background:none;border:none;color:var(--muted);cursor:pointer}
+.hlist{flex:1;overflow-y:auto;padding:.4rem}
+.hitem{padding:.5rem .7rem;border-radius:6px;background:var(--bg2);margin-bottom:.3rem;cursor:pointer;border:1px solid transparent;font-size:.8rem;transition:.2s}
+.hitem:hover{border-color:var(--accent)}
+.htime{font-size:.7rem;color:var(--muted)}
+/* Editor */
+.ep{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0}
+.ehead{padding:.4rem 1rem;background:var(--bg2);border-bottom:1px solid var(--border);font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.ewrap{flex:1;display:flex;overflow:hidden}
+.lnum{width:42px;padding:.8rem .4rem;background:var(--bg2);text-align:right;font-family:'Fira Code',monospace;color:var(--border);font-size:13px;line-height:1.6;border-right:1px solid var(--border);overflow:hidden;user-select:none;flex-shrink:0}
+.editor{flex:1;padding:.8rem;background:transparent;color:#a5b4fc;font-family:'Fira Code',monospace;font-size:13px;line-height:1.6;border:none;outline:none;resize:none;white-space:pre;overflow:auto}
+/* Output */
+.op{width:46%;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;min-width:0}
+.otabs{background:var(--bg3);border-bottom:1px solid var(--border);display:flex}
+.otab{padding:.5rem 1rem;font-size:.82rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.otab.active{color:var(--text);border-color:var(--accent)}
+.badge{background:var(--red);color:#fff;border-radius:10px;padding:0 5px;font-size:.7rem;margin-left:.3rem;display:none}
+.badge.on{display:inline}
+.oview{flex:1;display:none;overflow:auto}
+.oview.active{display:flex;flex-direction:column}
+iframe#pv{width:100%;height:100%;border:none;background:#fff}
+.cv{flex:1;padding:.8rem;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.7;background:#0d1117;overflow-y:auto}
+.cl{padding:.15rem 0;border-bottom:1px solid rgba(255,255,255,.04)}.cl.log{color:#d4d4d4}.cl.warn{color:var(--yellow)}.cl.err{color:#f87171}.cl.info{color:#60a5fa}
+.erv{padding:1rem;background:#1a0a0a;overflow-y:auto}
+.erc{background:#1a0505;border-left:3px solid var(--red);border-radius:4px;padding:.8rem;margin-bottom:.8rem}
+.erc h4{color:var(--red);font-size:.85rem;margin-bottom:.4rem;font-family:'Fira Code',monospace}
+.erc p{color:#fca5a5;font-size:.8rem;margin-bottom:.5rem}
+.erc button{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:.3rem .7rem;font-size:.78rem;cursor:pointer}
+/* SIM view */
+.sv{flex:1;display:flex;flex-direction:column;background:#0d1117;overflow:hidden}
+.sv-top{flex:1;overflow-y:auto;padding:1rem}
+.sv-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.4rem}
+.sv-code{font-family:'Fira Code',monospace;font-size:12.5px;color:#a5b4fc;white-space:pre-wrap;background:rgba(0,0,0,.3);padding:.8rem;border-radius:6px;border:1px solid var(--border)}
+.sv-out{background:#071a0e;border:1px solid var(--green);border-radius:6px;padding:.8rem;font-family:'Fira Code',monospace;font-size:12.5px;color:var(--green);white-space:pre-wrap;margin-top:1rem}
+.sim-note{font-size:.78rem;color:var(--yellow);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:.6rem;margin-bottom:1rem}
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
-
-    <div class="topbar">
-        <div class="topbar-left">
-            <a href="workspace.html" style="text-decoration:none; color:var(--text-muted); font-size: 1.2rem;" title="Voltar ao Hub">⬅</a>
-            <span class="logo">NEXUS Sandbox</span>
-            <select id="framework-select" onchange="handleFrameworkChange()">
-                <option value="html-js">Vanilla (HTML/JS/CSS)</option>
-                <option value="react">React (via CDN)</option>
-                <option value="vue">Vue 3</option>
-                <option value="tailwind">Tailwind CSS</option>
-                <option value="typescript">TypeScript</option>
-                <option value="python">Python (Brython)</option>
-                <option value="lua">Lua (Fengari)</option>
-                <option value="ruby">Ruby (Opal)</option>
-            </select>
-        </div>
-        <div class="topbar-right">
-            <button onclick="formatCode()">✨ Clean Code</button>
-            <button onclick="toggleHistory()">⏱ Histórico</button>
-            <button class="btn-success" onclick="executeCode()">▶ Executar Código</button>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <!-- Sidebar Histórico -->
-        <div class="sidebar" id="history-sidebar">
-            <div class="sidebar-header">
-                Histórico de Versões
-                <button onclick="toggleHistory()" style="padding:0.2rem 0.5rem; background:transparent; border:none; color:var(--text-muted);">✕</button>
-            </div>
-            <div class="history-list" id="history-list">
-                <!-- Itens inseridos via JS -->
-            </div>
-        </div>
-
-        <!-- Editor -->
-        <div class="editor-pane">
-            <div class="editor-header">
-                <span id="file-label">index.html</span>
-                <span style="color: var(--success); font-size: 0.8rem;">● Ambiente Pronto</span>
-            </div>
-            <div class="editor-container">
-                <div class="line-numbers" id="line-numbers">1</div>
-                <textarea id="code-editor" class="code-input" spellcheck="false" oninput="updateLineNumbers(); saveStateDebounced();" onscroll="syncScroll()"><!-- Insira seu código aqui. Exemplo: -->
-<div style="padding: 20px; text-align: center; font-family: sans-serif;">
-    <h1 style="color: #6366f1;">Bem-vindo ao Nexus Sandbox</h1>
-    <p>Clique em "Executar Código" para ver o resultado ao vivo.</p>
-    <button onclick="testar()">Testar Console</button>
+<div class="topbar">
+  <a href="workspace.html" style="text-decoration:none;color:var(--accent);font-size:1.1rem" title="Hub">⬅</a>
+  <span class="logo">NEXUS Dev</span>
+  <select id="lang-select" onchange="changeLang()"></select>
+  <button onclick="formatCode()">✨ Formatar</button>
+  <button onclick="toggleHistory()">📋 Histórico</button>
+  <div class="sp"></div>
+  <a href="learn-workspace.html"><button class="btn-learn">🎓 Aprender</button></a>
+  <button class="btn-run" onclick="runCode()">▶ Executar</button>
 </div>
-<script>
-    function testar() {
-        console.log("Botão clicado! Funciona perfeitamente.");
-    }
-</script></textarea>
-            </div>
-        </div>
-
-        <!-- Output -->
-        <div class="output-pane">
-            <div class="output-tabs">
-                <div class="tab active" onclick="switchTab('preview')" id="tab-preview">Preview Visual</div>
-                <div class="tab" onclick="switchTab('console')" id="tab-console">Console</div>
-                <div class="tab" onclick="switchTab('errors')" id="tab-errors">Erros <span class="tab-badge" id="error-badge">0</span></div>
-            </div>
-            <div class="output-content">
-                <div class="output-view active" id="view-preview">
-                    <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
-                </div>
-                <div class="output-view" id="view-console">
-                    <!-- Logs inseridos aqui -->
-                </div>
-                <div class="output-view" id="view-errors">
-                    <div id="error-container">
-                        <p style="color: #4b5563; text-align: center; margin-top: 2rem;">Nenhum erro de execução detectado.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="main">
+  <div class="sidebar hidden" id="hist-panel">
+    <div class="sh"><span>Histórico</span><button onclick="toggleHistory()">✕</button></div>
+    <div class="hlist" id="hlist"></div>
+  </div>
+  <div class="ep">
+    <div class="ehead"><span id="flabel">main.html</span><span style="color:var(--green);font-size:.78rem">● Pronto</span></div>
+    <div class="ewrap">
+      <div class="lnum" id="lnum">1</div>
+      <textarea class="editor" id="ed" spellcheck="false" oninput="onInput()" onkeydown="edKey(event)" onscroll="syncLN()"></textarea>
     </div>
+  </div>
+  <div class="op">
+    <div class="otabs">
+      <div class="otab active" id="t-pv" onclick="showTab('pv')">🖥 Preview</div>
+      <div class="otab" id="t-cv" onclick="showTab('cv')">⬛ Console</div>
+      <div class="otab" id="t-er" onclick="showTab('er')">⚠ Erros <span class="badge" id="eb">0</span></div>
+      <div class="otab" id="t-sv" onclick="showTab('sv')">💻 Simulação</div>
+    </div>
+    <div class="oview active" id="pv"><iframe id="pvf" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe></div>
+    <div class="oview" id="cv"><div class="cv" id="clog"></div></div>
+    <div class="oview" id="er"><div class="erv" id="erlist"><p style="color:var(--muted);text-align:center;margin-top:2rem">Nenhum erro</p></div></div>
+    <div class="oview" id="sv">
+      <div class="sv">
+        <div class="sv-top">
+          <div class="sim-note">⚡ Modo Simulação — Esta linguagem executa no servidor. Saída baseada no código de exemplo.</div>
+          <div class="sv-label">Código</div>
+          <div class="sv-code" id="sc"></div>
+          <div class="sv-label" style="margin-top:1rem">Saída Esperada</div>
+          <div class="sv-out" id="so"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="languages-data.js"></script>
+<script>
+const ed=document.getElementById('ed');
+const lnum=document.getElementById('lnum');
+const clog=document.getElementById('clog');
+const erlist=document.getElementById('erlist');
+const eb=document.getElementById('eb');
+let vhist=[],htimer=null,ecnt=0,curLang='html-js';
 
-    <script>
-        // Sistema de Estado e Histórico
-        let history = [];
-        let historyTimer = null;
-        const editor = document.getElementById('code-editor');
-        const lineNumbers = document.getElementById('line-numbers');
-        const previewFrame = document.getElementById('preview-frame');
-        const consoleView = document.getElementById('view-console');
-        const errorContainer = document.getElementById('error-container');
-        const errorBadge = document.getElementById('error-badge');
+/* Build select */
+(function(){
+  const sel=document.getElementById('lang-select');
+  const groups={
+    'Web/Frontend':['html-js','react','vue','tailwind','typescript','coffeescript','elm','dart'],
+    'Scripting':['python','ruby','lua','perl','groovy','tcl','awk','bash','powershell'],
+    'Sistemas':['c','cpp','go','rust','zig','nim','d','carbon','ada','pascal','fortran','cobol','assembly'],
+    'JVM / Geral':['java','kotlin','scala','clojure'],
+    '.NET':['csharp','fsharp','vbnet'],
+    'PHP':['php'],
+    'Swift / Mobile':['swift','objc','dart'],
+    'Funcionais':['haskell','erlang','elixir','lisp','scheme','prolog','ocaml','sml'],
+    'Dados / IA':['r','julia','matlab','sql','sas'],
+    'Legado / Outros':['delphi','abap','apex','vhdl','verilog']
+  };
+  for(const[g,keys] of Object.entries(groups)){
+    const og=document.createElement('optgroup');
+    og.label=g;
+    keys.forEach(k=>{
+      if(!LANGS[k])return;
+      const o=document.createElement('option');
+      o.value=k;o.textContent=LANGS[k].name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  }
+})();
 
-        function handleFrameworkChange() {
-            const fw = document.getElementById('framework-select').value;
-            if (fw === 'python') {
-                editor.value = "# Bem-vindo ao Sandbox Python!\n# Seu código Python roda nativamente no navegador!\n\nimport math\n\ndef calcular_area_circulo(raio):\n    area = math.pi * (raio ** 2)\n    return round(area, 2)\n\nraios = [2, 5, 10]\nfor r in raios:\n    print(f'Um círculo de raio {r} tem área = {calcular_area_circulo(r)}')\n\n# Clique em Executar e olhe a aba Console!";
-            } else if (fw === 'react') {
-                editor.value = "const App = () => {\n  const [count, setCount] = React.useState(0);\n  return (\n    <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'sans-serif' }}>\n      <h1 style={{ color: '#6366f1' }}>NEXUS React Sandbox</h1>\n      <p>Contador: {count}</p>\n      <button onClick={() => setCount(c => c + 1)} style={{ padding: '10px 20px', cursor: 'pointer', background: '#10b981', color: 'white', border: 'none', borderRadius: '5px' }}>\n        Incrementar\n      </button>\n    </div>\n  );\n};\n\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);";
-            } else if (fw === 'vue') {
-                editor.value = "<div id=\"app\">\n  <div style=\"text-align: center; padding: 40px; font-family: sans-serif;\">\n    <h1 style=\"color: #42b883\">{{ titulo }}</h1>\n    <button @click=\"contador++\" style=\"padding: 10px 20px; background: #42b883; color: white; border: none; border-radius: 5px; cursor: pointer;\">\n      Cliques: {{ contador }}\n    </button>\n  </div>\n</div>\n\n<script>\n  const { createApp, ref } = Vue;\n  createApp({\n    setup() {\n      const titulo = ref('NEXUS Vue 3 Sandbox');\n      const contador = ref(0);\n      return { titulo, contador };\n    }\n  }).mount('#app');\n<\/script>";
-            } else if (fw === 'typescript') {
-                editor.value = "interface Person {\n    name: string;\n    age: number;\n    skills: string[];\n}\n\nconst greet = (person: Person) => {\n    console.log(`Olá, ${person.name}! Você tem ${person.age} anos.`);\n    console.log(`Habilidades: ${person.skills.join(', ')}`);\n};\n\nconst user: Person = {\n    name: 'NEXUS User',\n    age: 25,\n    skills: ['TypeScript', 'JavaScript', 'Design']\n};\n\ngreet(user);\n\n// Verifique o resultado na aba Console!";
-            } else if (fw === 'lua') {
-                editor.value = "-- Bem-vindo ao Sandbox Lua!\n\nfunction calcularFatorial(n)\n    if n == 0 then\n        return 1\n    else\n        return n * calcularFatorial(n - 1)\n    end\nend\n\nprint('=== Teste de Lua no Navegador ===')\nprint('Fatorial de 5 é: ' .. calcularFatorial(5))\n\n-- Veja o resultado na aba Console!";
-            } else if (fw === 'ruby') {
-                editor.value = "# Bem-vindo ao Sandbox Ruby!\n\nclass Saudacao\n  def initialize(nome)\n    @nome = nome\n  end\n\n  def dizer_ola\n    puts \"Olá, #{@nome}! Ruby executando puramente no cliente via Opal!\"\n  end\nend\n\ns = Saudacao.new('Usuário NEXUS')\ns.dizer_ola\n\n# Veja o resultado na aba Console!";
-            }
-            updateLineNumbers();
-            executeCode();
-        }
+function changeLang(){
+  curLang=document.getElementById('lang-select').value;
+  const L=LANGS[curLang];
+  if(!L)return;
+  ed.value=L.template;
+  document.getElementById('flabel').textContent='main.'+L.ext;
+  updateLN();
+  runCode();
+}
 
-        function updateLineNumbers() {
-            const lines = editor.value.split('\n').length;
-            lineNumbers.innerHTML = Array(lines).fill(0).map((_, i) => i + 1).join('<br>');
-        }
+function updateLN(){
+  const n=ed.value.split('\n').length;
+  lnum.innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');
+}
+function syncLN(){lnum.scrollTop=ed.scrollTop;}
+function onInput(){updateLN();clearTimeout(htimer);htimer=setTimeout(()=>saveHist(ed.value),2000);}
+function edKey(e){
+  if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();runCode();}
+  if(e.key==='Tab'){e.preventDefault();const s=ed.selectionStart,v=ed.value;ed.value=v.slice(0,s)+'  '+v.slice(ed.selectionEnd);ed.selectionStart=ed.selectionEnd=s+2;}
+}
+function saveHist(code){
+  if(vhist.length>0&&vhist[vhist.length-1].c===code)return;
+  const t=new Date();
+  vhist.push({c:code,t:`${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`});
+  renderHist();
+}
+function renderHist(){
+  const l=document.getElementById('hlist');l.innerHTML='';
+  vhist.slice().reverse().forEach((h,i)=>{
+    const d=document.createElement('div');d.className='hitem';
+    d.innerHTML=`<div>v${vhist.length-i}</div><div class="htime">${h.t}</div>`;
+    d.onclick=()=>{ed.value=h.c;updateLN();runCode();};
+    l.appendChild(d);
+  });
+}
+function toggleHistory(){document.getElementById('hist-panel').classList.toggle('hidden');}
+function showTab(id){
+  document.querySelectorAll('.otab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.oview').forEach(v=>v.classList.remove('active'));
+  document.getElementById('t-'+id).classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+function formatCode(){
+  let c=ed.value;
+  const L=LANGS[curLang];
+  if(!L)return;
+  if(['html-js','react','vue','tailwind','elm'].includes(curLang)){
+    c=c.replace(/></g,'>\n<');
+  }
+  ed.value=c;updateLN();
+}
+function fixErr(msg){
+  if(msg.includes('is not defined'))ed.value='// Correção: variável declarada\nlet missingVar;\n'+ed.value;
+  else alert('Verifique a sintaxe: '+msg);
+  updateLN();runCode();
+}
 
-        function syncScroll() {
-            lineNumbers.scrollTop = editor.scrollTop;
-        }
+/* === EXECUTION ENGINE === */
+function runCode(){
+  const L=LANGS[curLang];
+  if(!L){alert('Linguagem não encontrada');return;}
+  const code=ed.value;
+  clog.innerHTML='';ecnt=0;eb.textContent='0';eb.classList.remove('on');
+  erlist.innerHTML='<p style="color:var(--muted);text-align:center;margin-top:2rem">Nenhum erro</p>';
+  saveHist(code);
 
-        // Debounce para salvar histórico
-        function saveStateDebounced() {
-            clearTimeout(historyTimer);
-            historyTimer = setTimeout(() => {
-                saveToHistory(editor.value);
-            }, 2000);
-        }
+  if(L.runner==='sim'){
+    document.getElementById('sc').textContent=code;
+    document.getElementById('so').textContent=L.simOut||'// Saída não disponível para este template';
+    showTab('sv');return;
+  }
+  showTab('pv');
+  buildIframe(L,code);
+}
 
-        function saveToHistory(code) {
-            if(history.length > 0 && history[history.length-1].code === code) return;
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-            history.push({ time: timeStr, code: code });
-            renderHistory();
-        }
+function buildIframe(L,code){
+  const runner=L.runner;
+  const cdnList=L.cdn||RUNNER_CDN[runner]||[];
+  const headCDN=cdnList.map(u=>`<script src="${u}"><\/script>`).join('\n');
 
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            list.innerHTML = '';
-            history.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `<div>Edição Automática</div><div class="history-time">${item.time}</div>`;
-                div.onclick = () => {
-                    editor.value = item.code;
-                    updateLineNumbers();
-                    executeCode();
-                };
-                list.prepend(div);
-            });
-        }
+  const interceptor=`<script>
+    const P=window.parent;
+    ['log','warn','error','info'].forEach(m=>{
+      const o=console[m];
+      console[m]=function(...a){P.postMessage({t:'con',m,a:a.map(String)},'*');o.apply(console,a);};
+    });
+    window.onerror=function(msg,s,l){P.postMessage({t:'err',msg,l},'*');return false;};
+  <\/script>`;
 
-        function toggleHistory() {
-            document.getElementById('history-sidebar').classList.toggle('hidden');
-        }
+  let body='<body>';
+  let content=code;
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.output-view').forEach(v => v.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            document.getElementById('view-' + tabName).classList.add('active');
-        }
+  if(runner==='babel-react'){
+    body='<body>';
+    if(!code.includes('type="text/babel"'))
+      content=`<div id="root"></div><script type="text/babel">\n${code}\n<\/script>`;
+  } else if(runner==='babel-ts'){
+    if(!code.includes('type="text/babel"'))
+      content=`<script type="text/babel" data-presets="typescript">\n${code}\n<\/script>`;
+  } else if(runner==='brython'){
+    body='<body onload="brython()">';
+    content=`<script type="text/python">
+from browser import console
+import sys
+class R:
+    def write(self,d):
+        if d.strip(): console.log(d)
+    def flush(self): pass
+sys.stdout=R(); sys.stderr=R()
+${code}
+<\/script>`;
+  } else if(runner==='opal'){
+    content=`<script>
+Opal.load('opal');Opal.load('opal-parser');
+Opal.eval(\`${code.replace(/`/g,'\\`')}\`);
+<\/script>`;
+  } else if(runner==='fengari'){
+    content=`<script type="application/lua">\n${code}\n<\/script>`;
+  } else if(runner==='coffeescript'){
+    content=`<script>
+var js=CoffeeScript.compile(\`${code.replace(/`/g,'\\`')}\`);
+eval(js);
+<\/script>`;
+  } else if(runner==='alasql'){
+    const safe=code.replace(/`/g,'\\`').replace(/\\/g,'\\\\');
+    content=`<script>
+var stmts=\`${safe}\`.split(';').map(s=>s.trim()).filter(s=>s&&!s.startsWith('--'));
+stmts.forEach(s=>{try{var r=alasql(s+';');if(Array.isArray(r)&&r.length)console.log(JSON.stringify(r,null,2));}catch(e){console.error(e.message);}});
+<\/script>`;
+  }
 
-        function formatCode() {
-            // Simulador básico de indentação (Clean Code)
-            let code = editor.value;
-            try {
-                // Tentativa super rudimentar de formatar HTML/JS rápido
-                code = code.replace(/></g, '>\n<').replace(/\{/g, '{\n  ').replace(/\}/g, '\n}');
-                editor.value = code;
-                updateLineNumbers();
-                alert("Código formatado e otimizado visualmente!");
-            } catch(e) {
-                console.log("Falha ao formatar");
-            }
-        }
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">${headCDN}${interceptor}</head>${body}${content}</body></html>`;
+  const pvf=document.getElementById('pvf');
+  pvf.src=URL.createObjectURL(new Blob([html],{type:'text/html'}));
 
-        // Tratamento de Erros e Correção Inteligente
-        function fixError(errorMessage) {
-            alert("Sistema de Debug Inteligente ativado.\nAplicando correção sugerida para: " + errorMessage);
-            // Simula uma IA corrigindo
-            if(errorMessage.includes("is not defined")) {
-                editor.value = "// Correção aplicada: Variável declarada\nlet testVar = 0;\n" + editor.value;
-            } else if(errorMessage.includes("Unexpected token")) {
-                alert("Verifique chaves {} ou parênteses () faltando na sintaxe.");
-            }
-            updateLineNumbers();
-            executeCode();
-        }
+  window.onmessage=e=>{
+    const d=e.data;
+    if(d.t==='con'){
+      const div=document.createElement('div');
+      div.className='cl '+d.m;
+      div.textContent='> '+d.a.join(' ');
+      clog.appendChild(div);
+      if(d.m==='error')addErr(d.a.join(' '),'N/A');
+    } else if(d.t==='err'){addErr(d.msg,d.l);}
+  };
+}
 
-        // Motor de Execução (Sandbox)
-        function executeCode() {
-            const rawCode = editor.value;
-            const framework = document.getElementById('framework-select').value;
-            
-            // Limpa Console e Erros
-            consoleView.innerHTML = '';
-            errorContainer.innerHTML = '<p style="color: #4b5563; text-align: center; margin-top: 2rem;">Nenhum erro de execução detectado.</p>';
-            errorBadge.classList.remove('show');
-            errorBadge.textContent = '0';
-            let errorCount = 0;
+function addErr(msg,line){
+  if(ecnt===0)erlist.innerHTML='';
+  ecnt++;eb.textContent=ecnt;eb.classList.add('on');
+  const c=document.createElement('div');c.className='erc';
+  c.innerHTML=`<h4>Erro (linha ${line})</h4><p>${msg}</p><button onclick="fixErr('${msg.replace(/'/g,"\\'")}')" >🔧 Correção Auto</button>`;
+  erlist.appendChild(c);
+  if(ecnt===1)showTab('er');
+}
 
-            // Injetor de Dependências e Captura de Console
-            let headInject = '';
-            if (framework === 'react') {
-                headInject = `
-                    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin><\/script>
-                    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin><\/script>
-                    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
-                `;
-            } else if (framework === 'tailwind') {
-                headInject = `<script src="https://cdn.tailwindcss.com"><\/script>`;
-            } else if (framework === 'vue') {
-                headInject = `<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>`;
-            } else if (framework === 'typescript') {
-                headInject = `<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>`;
-            } else if (framework === 'python') {
-                headInject = `
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"><\/script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.min.js"><\/script>
-                `;
-            } else if (framework === 'lua') {
-                headInject = `<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"><\/script>`;
-            } else if (framework === 'ruby') {
-                headInject = `
-                    <script src="https://cdn.opalrb.com/opal/current/opal.min.js"><\/script>
-                    <script src="https://cdn.opalrb.com/opal/current/opal-parser.min.js"><\/script>
-                `;
-            }
-
-            // Script interceptador injetado no iframe
-            const interceptorScript = `
-                <script>
-                    const parentConsole = window.parent;
-                    ['log', 'error', 'warn', 'info'].forEach(method => {
-                        const original = console[method];
-                        console[method] = function(...args) {
-                            parentConsole.postMessage({ type: 'console', method: method, args: args.map(a => String(a)) }, '*');
-                            original.apply(console, args);
-                        };
-                    });
-                    window.onerror = function(message, source, lineno, colno, error) {
-                        parentConsole.postMessage({ type: 'error', message: message, line: lineno }, '*');
-                        return false;
-                    };
-                <\/script>
-            `;
-
-            // Construir o HTML final
-            let finalCode = rawCode;
-            let bodyTag = '<body>';
-            
-            if (framework === 'react') {
-                // Se for react e não tiver tag <script type="text/babel">, envelopa
-                if(!rawCode.includes('type="text/babel"')) {
-                     finalCode = `<div id="root"></div>\n<script type="text/babel">\n${rawCode}\n<\/script>`;
-                }
-            } else if (framework === 'typescript') {
-                if(!rawCode.includes('type="text/babel"')) {
-                     finalCode = `<script type="text/babel" data-presets="typescript">\n${rawCode}\n<\/script>`;
-                }
-            } else if (framework === 'lua') {
-                if(!rawCode.includes('type="application/lua"')) {
-                     finalCode = `<script type="application/lua">\n${rawCode}\n<\/script>`;
-                }
-            } else if (framework === 'ruby') {
-                if(!rawCode.includes('type="text/ruby"')) {
-                     finalCode = `<script type="text/ruby">\n${rawCode}\n<\/script>`;
-                }
-            } else if (framework === 'python') {
-                bodyTag = '<body onload="brython()">';
-                if(!rawCode.includes('type="text/python"')) {
-                    // Script interceptador python para enviar o stdout para a aba console
-                    finalCode = `<script type="text/python">\nfrom browser import console\nimport sys\n\nclass OutputRedirect:\n    def write(self, data):\n        if data.strip(): console.log(data)\n    def flush(self): pass\n\nsys.stdout = OutputRedirect()\nsys.stderr = OutputRedirect()\n\n${rawCode}\n<\/script>`;
-                }
-            }
-
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    ${headInject}
-                    ${interceptorScript}
-                </head>
-                ${bodyTag}
-                    ${finalCode}
-                </body>
-                </html>
-            `;
-
-            // Renderiza no Iframe
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            previewFrame.src = URL.createObjectURL(blob);
-
-            // Listener para mensagens do Iframe
-            window.onmessage = function(e) {
-                if(e.data.type === 'console') {
-                    const div = document.createElement('div');
-                    div.className = 'log-entry ' + e.data.method;
-                    div.textContent = `> ${e.data.args.join(' ')}`;
-                    consoleView.appendChild(div);
-                    if(e.data.method === 'error') {
-                        registerError(e.data.args.join(' '), "N/A");
-                    }
-                } else if(e.data.type === 'error') {
-                    registerError(e.data.message, e.data.line);
-                }
-            };
-
-            function registerError(msg, line) {
-                if(errorCount === 0) errorContainer.innerHTML = ''; // Limpa empty state
-                errorCount++;
-                errorBadge.textContent = errorCount;
-                errorBadge.classList.add('show');
-                
-                const card = document.createElement('div');
-                card.className = 'error-card';
-                card.innerHTML = `
-                    <h4>Erro Detectado (Linha ${line})</h4>
-                    <p>${msg}</p>
-                    <button class="btn-primary" onclick="window.parent.fixError('${msg.replace(/'/g, "\\'")}')">🔧 Sugerir Correção Automática</button>
-                `;
-                errorContainer.appendChild(card);
-                
-                // Se der erro, muda pra aba de erros automaticamente
-                if(errorCount === 1) switchTab('errors');
-            }
-        }
-
-        // Init
-        updateLineNumbers();
-        saveToHistory(editor.value);
-        executeCode();
-
-    </script>
+/* Init */
+changeLang();
+</script>
 </body>
 </html>
