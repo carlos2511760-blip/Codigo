@@ -168,7 +168,7 @@ let   curFile = 'index.html';
 
 // ── WEB LANG TYPES ─────────────────────────────────────────────
 const WEB_RUNNERS   = ['web','babel-react','babel-ts','vue','tailwind','coffeescript'];
-const LOGIC_RUNNERS = ['brython','opal','fengari','alasql'];
+const LOGIC_RUNNERS = ['brython','opal','fengari','alasql','piston'];
 const SIM_RUNNER    = 'sim';
 
 function getMode(runner){
@@ -329,6 +329,35 @@ function addErr(msg){
 }
 
 // ── EXECUTION ENGINE ───────────────────────────────────────────
+async function runPiston(L, code) {
+  const pMap = { 'assembly':'nasm', 'vbnet':'vbn' };
+  const pLang = pMap[curLang] || curLang;
+  
+  try {
+    const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language: pLang, version: "*", files: [{ content: code }] })
+    });
+    const data = await res.json();
+    if(data.message) {
+      tPrint('⚠ Esta linguagem não possui compilador remoto.', 'warn');
+      tPrint('--- SAÍDA SIMULADA ---', 'sys');
+      tPrint(L.simOut || 'Sem simulação.', 'stdout');
+      return;
+    }
+    if(data.compile && data.compile.stderr) tPrint('✗ COMPILAÇÃO:\n' + data.compile.stderr, 'err');
+    if(data.run) {
+      if(data.run.stdout) tPrint(data.run.stdout, 'stdout');
+      if(data.run.stderr) tPrint(data.run.stderr, 'err');
+      if(data.run.code !== 0) tPrint('Finalizado (código ' + data.run.code + ')', 'warn');
+      else tPrint('Execução finalizada.', 'ok');
+    }
+  } catch(e) {
+    tPrint('✗ Falha na conexão com o contêiner de compilação.', 'err');
+  }
+}
+
 function runCode(){
   const L = LANGS[curLang]; if(!L) return;
   const code = ed.value;
@@ -344,6 +373,11 @@ function runCode(){
   if(mode==='logic'){
     tClear();
     tPrint('Executando '+L.name+'...','sys');
+  }
+
+  if(L.runner === 'piston') {
+    runPiston(L, code);
+    return;
   }
 
   const cdnList = L.cdn||RUNNER_CDN[L.runner]||[];
