@@ -65,10 +65,11 @@
         <div class="topbar-left">
             <a href="workspace.html" style="text-decoration:none; color:var(--text-muted); font-size: 1.2rem;" title="Voltar ao Hub">⬅</a>
             <span class="logo">NEXUS Sandbox</span>
-            <select id="framework-select">
+            <select id="framework-select" onchange="handleFrameworkChange()">
                 <option value="html-js">Vanilla (HTML/JS/CSS)</option>
                 <option value="react">React (via CDN)</option>
                 <option value="tailwind">Tailwind CSS</option>
+                <option value="python">Python (Brython)</option>
             </select>
         </div>
         <div class="topbar-right">
@@ -145,6 +146,17 @@
         const consoleView = document.getElementById('view-console');
         const errorContainer = document.getElementById('error-container');
         const errorBadge = document.getElementById('error-badge');
+
+        function handleFrameworkChange() {
+            const fw = document.getElementById('framework-select').value;
+            if (fw === 'python') {
+                editor.value = "# Bem-vindo ao Sandbox Python!\n# Seu código Python roda nativamente no navegador!\n\nimport math\n\ndef calcular_area_circulo(raio):\n    area = math.pi * (raio ** 2)\n    return round(area, 2)\n\nraios = [2, 5, 10]\nfor r in raios:\n    print(f'Um círculo de raio {r} tem área = {calcular_area_circulo(r)}')\n\n# Clique em Executar e olhe a aba Console!";
+            } else if (fw === 'react') {
+                editor.value = "const App = () => {\n  const [count, setCount] = React.useState(0);\n  return (\n    <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'sans-serif' }}>\n      <h1 style={{ color: '#6366f1' }}>NEXUS React Sandbox</h1>\n      <p>Contador: {count}</p>\n      <button onClick={() => setCount(c => c + 1)} style={{ padding: '10px 20px', cursor: 'pointer', background: '#10b981', color: 'white', border: 'none', borderRadius: '5px' }}>\n        Incrementar\n      </button>\n    </div>\n  );\n};\n\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);";
+            }
+            updateLineNumbers();
+            executeCode();
+        }
 
         function updateLineNumbers() {
             const lines = editor.value.split('\n').length;
@@ -247,6 +259,11 @@
                 `;
             } else if (framework === 'tailwind') {
                 headInject = `<script src="https://cdn.tailwindcss.com"><\/script>`;
+            } else if (framework === 'python') {
+                headInject = `
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"><\/script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.min.js"><\/script>
+                `;
             }
 
             // Script interceptador injetado no iframe
@@ -269,10 +286,18 @@
 
             // Construir o HTML final
             let finalCode = rawCode;
+            let bodyTag = '<body>';
+            
             if (framework === 'react') {
                 // Se for react e não tiver tag <script type="text/babel">, envelopa
                 if(!rawCode.includes('type="text/babel"')) {
                      finalCode = `<div id="root"></div>\n<script type="text/babel">\n${rawCode}\n<\/script>`;
+                }
+            } else if (framework === 'python') {
+                bodyTag = '<body onload="brython()">';
+                if(!rawCode.includes('type="text/python"')) {
+                    // Script interceptador python para enviar o stdout para a aba console
+                    finalCode = `<script type="text/python">\nfrom browser import console\nimport sys\n\nclass OutputRedirect:\n    def write(self, data):\n        if data.strip(): console.log(data)\n    def flush(self): pass\n\nsys.stdout = OutputRedirect()\nsys.stderr = OutputRedirect()\n\n${rawCode}\n<\/script>`;
                 }
             }
 
@@ -284,7 +309,7 @@
                     ${headInject}
                     ${interceptorScript}
                 </head>
-                <body>
+                ${bodyTag}
                     ${finalCode}
                 </body>
                 </html>
