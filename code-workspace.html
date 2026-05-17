@@ -168,7 +168,7 @@ let   curFile = 'index.html';
 
 // ── WEB LANG TYPES ─────────────────────────────────────────────
 const WEB_RUNNERS   = ['web','babel-react','babel-ts','vue','tailwind','coffeescript'];
-const LOGIC_RUNNERS = ['brython','opal','fengari','alasql','piston'];
+const LOGIC_RUNNERS = ['brython','opal','fengari','alasql','piston','delphi-compiler','abap-compiler','apex-compiler','scheme-compiler'];
 const SIM_RUNNER    = 'sim';
 
 function getMode(runner){
@@ -432,6 +432,44 @@ ${code}
     const safe=code.replace(/`/g,'\\`');
     content=`<script>var ss=\`${safe}\`.split(';').map(s=>s.trim()).filter(s=>s&&!s.startsWith('--'));
 ss.forEach(s=>{try{var r=alasql(s+';');if(Array.isArray(r)&&r.length)console.log(JSON.stringify(r,null,2));}catch(e){console.error(e.message);}});<\/script>`;
+  } else if(r==='scheme-compiler'){
+    content=`<script>
+var biwa = new BiwaScheme.Interpreter(function(e){ console.error(e.message); });
+biwa.evaluate(\`${code.replace(/`/g,'\\`')}\`);
+<\/script>`;
+  } else if(r==='delphi-compiler'){
+    content=`<script>
+let jsCode = \`${code.replace(/`/g,'\\`')}\`
+  .replace(/program\\s+\\w+;/gi, '')
+  .replace(/var\\s+[\\w\\s,:]+;/gi, '')
+  .replace(/begin/gi, '{')
+  .replace(/end\\./gi, '}')
+  .replace(/Writeln\\((.*?)\\);/gi, 'console.log($1);')
+  .replace(/Write\\((.*?)\\);/gi, 'console.log($1);')
+  .replace(/for\\s+(\\w+)\\s*:=\\s*(\\d+)\\s+to\\s+(\\d+)\\s+do/gi, 'for(let $1=$2; $1<=$3; $1++)')
+  .replace(/\\'/g, '"');
+try { eval(jsCode); } catch(e) { console.error('Erro Delphi: ' + e.message); }
+<\/script>`;
+  } else if(r==='abap-compiler'){
+    content=`<script>
+let jsCode = \`${code.replace(/`/g,'\\`')}\`
+  .replace(/REPORT\\s+\\w+\\./gi, '')
+  .replace(/DATA:\\s+(\\w+)\\s+TYPE\\s+\\w+\\./gi, 'let $1 = "";')
+  .replace(/(\\w+)\\s*=\\s*'(.*?)'\\./gi, '$1 = "$2";')
+  .replace(/WRITE:\\s*'(.*?)'\\./gi, 'console.log("$1");')
+  .replace(/WRITE:\\s*'(.*?)',\\s*(\\w+)\\./gi, 'console.log("$1 " + $2);')
+  .replace(/NEW-LINE\\./gi, '');
+try { eval(jsCode); } catch(e) { console.error('Erro ABAP: ' + e.message); }
+<\/script>`;
+  } else if(r==='apex-compiler'){
+    content=`<script>
+let jsCode = \`${code.replace(/`/g,'\\`')}\`
+  .replace(/public\\s+class\\s+\\w+\\s*\\{/gi, '{')
+  .replace(/public\\s+static\\s+void\\s+main\\(\\)\\s*\\{/gi, '{')
+  .replace(/System\\.debug\\((.*?)\\);/gi, 'console.log($1);')
+  .replace(/String\\s+(\\w+)/gi, 'let $1');
+try { eval(jsCode); } catch(e) { console.error('Erro Apex: ' + e.message); }
+<\/script>`;
   }
 
   // Combine all files for web builds
