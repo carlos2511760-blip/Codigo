@@ -211,14 +211,18 @@ function changeLang(){
   const L = LANGS[curLang]; if(!L) return;
   mode = getMode(L.runner);
 
-  // Reset file tree for new lang
+  // Clear existing files and reset file tree for new lang
+  for (let key in files) delete files[key];
+  
   const fname = 'main.'+L.ext;
-  files[fname] = { lang: curLang, content: L.template };
+  files[fname] = { lang: curLang, content: L.template || '' };
+  
   switchFile(fname);
   renderFT();
   updateEnvBadge();
   updateOutput();
   runCode();
+  ed.focus();
 }
 
 function updateEnvBadge(){
@@ -249,8 +253,15 @@ function renderFT(){
     const icon = icons[ext]||icons.default;
     const li = document.createElement('div');
     li.className = 'ft-item'+(name===curFile?' active':'');
-    li.innerHTML=`<span class="ft-icon">${icon}</span>${name}`;
-    li.onclick = ()=>switchFile(name);
+    li.innerHTML=`<span class="ft-icon">${icon}</span><span style="flex:1; overflow:hidden; text-overflow:ellipsis;">${name}</span><button class="ft-del" data-name="${name}" title="Excluir" style="background:none; border:none; color:var(--red); cursor:pointer; font-size: 0.8rem;">✖</button>`;
+    li.onclick = (e)=>{ 
+      if(e.target.classList.contains('ft-del')){ 
+        e.stopPropagation(); 
+        deleteFile(name); 
+      } else { 
+        switchFile(name); 
+      } 
+    };
     list.appendChild(li);
     // Tab
     const tab = document.createElement('div');
@@ -264,6 +275,18 @@ function renderFT(){
   list.appendChild(nb);
 }
 
+function deleteFile(name){
+  if(!files[name]) return;
+  if(Object.keys(files).length===1){ alert('Não é possível excluir o último arquivo do projeto.'); return; }
+  delete files[name];
+  if(curFile===name){ 
+    const next = Object.keys(files)[0]; 
+    switchFile(next); 
+  } else {
+    renderFT();
+  }
+}
+
 function switchFile(name){
   if(curFile && files[curFile]) files[curFile].content=ed.value;
   curFile = name;
@@ -272,10 +295,19 @@ function switchFile(name){
 }
 
 function addFile(){
-  const name = prompt('Nome do arquivo (ex: utils.js):');
+  const L = LANGS[curLang];
+  const name = prompt(`Nome do arquivo (extensão sugerida: .${L.ext}):`);
   if(!name||files[name]) return;
+  
+  if(!name.includes('.')) {
+    alert(`Por favor, inclua a extensão do arquivo (exemplo: arquivo.${L.ext})`);
+    return;
+  }
+  
   files[name]={lang:curLang,content:''};
-  switchFile(name); renderFT();
+  switchFile(name); 
+  renderFT();
+  ed.focus();
 }
 
 function toggleFT(){
@@ -328,7 +360,6 @@ function addErr(msg){
   tPrint('✗ ERRO: '+msg,'err');
 }
 
-// ── EXECUTION ENGINE ───────────────────────────────────────────
 async function runPiston(L, code) {
   const pMap = { 
     'assembly': 'nasm', 
@@ -352,6 +383,9 @@ async function runPiston(L, code) {
   const pLang = pMap[curLang] || curLang;
   const pVersion = versionsMap[curLang] || "*";
   
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => abortController.abort(), 10000); // 10 seconds timeout
+  
   try {
     let filename = 'main.' + L.ext;
     if (curLang === 'java') filename = 'Main.java';
@@ -363,8 +397,17 @@ async function runPiston(L, code) {
         language: pLang,
         version: pVersion,
         files: [{ name: filename, content: code }]
-      })
+      }),
+      signal: abortController.signal
     });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+        tPrint(`✗ Erro na API do Piston (Status ${res.status}).`, 'err');
+        return;
+    }
+    
     const data = await res.json();
     if(data.message) {
       tPrint('⚠ Esta linguagem não possui compilador remoto.', 'warn');
@@ -380,7 +423,12 @@ async function runPiston(L, code) {
       else tPrint('Execução finalizada.', 'ok');
     }
   } catch(e) {
-    tPrint('✗ Falha na conexão com o contêiner de compilação.', 'err');
+    clearTimeout(timeoutId);
+    if(e.name === 'AbortError') {
+      tPrint('✗ Execução cancelada por tempo limite (timeout).', 'err');
+    } else {
+      tPrint('✗ Falha na conexão com o contêiner de compilação.', 'err');
+    }
   }
 }
 

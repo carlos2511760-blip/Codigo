@@ -1,5 +1,8 @@
 // NEXUS Sandbox - Language Registry
 const LANGS = {
+  // Aliases
+  'js':           { name:'JavaScript (via HTML/JS)', ext:'js',  runner:'web',          cdn:[],  simOut:'', template:'console.log("JS isolado rodando!");' },
+
   // WEB / FRONTEND
   'html-js':      { name:'HTML/JS/CSS',   ext:'html',  runner:'web',          cdn:[],  simOut:'', template:'<h1 style="color:#6366f1;font-family:sans-serif">Hello NEXUS!</h1>\n<button onclick="alert(\'Funciona!\')">Testar</button>\n<script>console.log("JS rodando!");<\/script>' },
   'react':        { name:'React 18',       ext:'jsx',   runner:'babel-react',  cdn:['https://unpkg.com/react@18/umd/react.development.js','https://unpkg.com/react-dom@18/umd/react-dom.development.js','https://unpkg.com/@babel/standalone/babel.min.js'], simOut:'', template:'const App=()=>{const[n,s]=React.useState(0);return<div style={{textAlign:"center",padding:40,fontFamily:"sans-serif"}}><h1 style={{color:"#6366f1"}}>React 18</h1><p>Cliques:{n}</p><button onClick={()=>s(n+1)}>+1</button></div>;};ReactDOM.createRoot(document.getElementById("root")).render(<App/>);' },
