@@ -594,7 +594,25 @@ try { eval(jsCode); } catch(e) { console.error('Erro Apex: ' + e.message); }
     });
   }
 
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">${headCDN}<style>${extraCSS}</style>${interceptor}</head>${body}${content}<script>${extraJS}<\/script></body></html>`;
+  let html = '';
+  if (mode === 'web' && r === 'web' && (code.toLowerCase().includes('<html') || code.toLowerCase().includes('<!doctype'))) {
+    let userHtml = code;
+    // Inject head components
+    if(userHtml.toLowerCase().includes('</head>')) {
+      userHtml = userHtml.replace(/<\/head>/i, `${headCDN}<style>${extraCSS}</style>${interceptor}</head>`);
+    } else {
+      userHtml = `${headCDN}<style>${extraCSS}</style>${interceptor}\n` + userHtml;
+    }
+    // Inject body components
+    if(userHtml.toLowerCase().includes('</body>')) {
+      userHtml = userHtml.replace(/<\/body>/i, `<script>${extraJS}<\/script></body>`);
+    } else {
+      userHtml += `<script>${extraJS}<\/script>`;
+    }
+    html = userHtml;
+  } else {
+    html = `<!DOCTYPE html><html><head><meta charset="UTF-8">${headCDN}<style>${extraCSS}</style>${interceptor}</head>${body}${content}<script>${extraJS}<\/script></body></html>`;
+  }
 
   if(mode==='web'){
     document.getElementById('pvf').src=URL.createObjectURL(new Blob([html],{type:'text/html'}));
