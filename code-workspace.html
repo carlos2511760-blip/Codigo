@@ -405,6 +405,9 @@ async function runPiston(L, code) {
     
     if (!res.ok) {
         tPrint(`✗ Erro na API do Piston (Status ${res.status}).`, 'err');
+        tPrint('⚠ Usando saída simulada baseada no template...', 'warn');
+        tPrint('--- SAÍDA SIMULADA ---', 'sys');
+        tPrint(L.simOut || 'Sem simulação disponível.', 'stdout');
         return;
     }
     
@@ -429,6 +432,9 @@ async function runPiston(L, code) {
     } else {
       tPrint('✗ Falha na conexão com o contêiner de compilação.', 'err');
     }
+    tPrint('⚠ Usando saída simulada baseada no template...', 'warn');
+    tPrint('--- SAÍDA SIMULADA ---', 'sys');
+    tPrint(L.simOut || 'Sem simulação disponível.', 'stdout');
   }
 }
 
@@ -492,7 +498,45 @@ ${code}
   } else if(r==='opal'){
     content=`<script>Opal.load('opal');Opal.load('opal-parser');Opal.eval(\`${code.replace(/`/g,'\\`')}\`);<\/script>`;
   } else if(r==='fengari'){
-    content=`<script type="application/lua">${code}<\/script>`;
+    content=`<script>
+window.addEventListener('load', () => {
+  try {
+    if (typeof fengari !== 'undefined') {
+      const lua = fengari.lua;
+      const lauxlib = fengari.lauxlib;
+      const lualib = fengari.lualib;
+      const L = lauxlib.luaL_newstate();
+      lualib.luaL_openlibs(L);
+      
+      const luaWrapper = \`
+        local js = require "js"
+        local console = js.global.console
+        _G.print = function(...)
+          local args = {...}
+          local str = {}
+          for i = 1, select('#', ...) do
+            table.insert(str, tostring(select(i, ...)))
+          end
+          console:log(table.concat(str, "   "))
+        end
+      \`;
+      
+      lauxlib.luaL_dostring(L, fengari.to_luastring(luaWrapper));
+      
+      const userCode = \`${code.replace(/`/g,'\\`').replace(/\\/g,'\\\\')}\`;
+      const status = lauxlib.luaL_dostring(L, fengari.to_luastring(userCode));
+      if (status !== 0) {
+        const err = lua.lua_tostring(L, -1);
+        console.error(fengari.to_jsstring(err));
+      }
+    } else {
+      console.error("Erro: Fengari (Lua VM) não foi carregado.");
+    }
+  } catch (e) {
+    console.error("Erro ao executar Lua: " + e.message);
+  }
+});
+<\/script>`;
   } else if(r==='coffeescript'){
     content=`<script>eval(CoffeeScript.compile(\`${code.replace(/`/g,'\\`')}\`));<\/script>`;
   } else if(r==='alasql'){
